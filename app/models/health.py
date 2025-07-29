@@ -1,16 +1,16 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
-from datetime import datetime
+# models/health.py
+
+from sqlalchemy import Column, String, Date, UUID, ForeignKey
+from sqlalchemy.orm import relationship
+from uuid import uuid4
 from app.db.base import Base
 
-class HealthData(Base):
-    __tablename__ = "health_data"
+class HealthRecord(Base):
+    __tablename__ = "health_records"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(String, index=True)
-    blood_pressure = Column(String)
-    heartbeat = Column(Integer)
-    hydration = Column(Float)
-    sleep_hours = Column(Float)
-    steps = Column(Integer)
-    recorded_at = Column(DateTime, default=datetime.UTCnow)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4, index=True)
+    name = Column(String, nullable=False)
+    dob = Column(Date, nullable=False)
 
+    # One health record has many emergency contacts
+    emergency_contacts = relationship("EmergencyContact", back_populates="health_record")

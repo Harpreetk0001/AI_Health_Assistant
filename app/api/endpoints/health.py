@@ -1,20 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+# api/endpoints/health.py
+
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.schemas.health import HealthCreate, HealthRead
-from app.crud import health as crud_health
 from app.db.session import get_db
+from app.schemas.health import HealthRecord, HealthRecordCreate
+from app.crud import health as crud_health
 from typing import List
 
 router = APIRouter()
 
-@router.post("/", response_model=HealthRead)
-def create_health_entry(health: HealthCreate, db: Session = Depends(get_db)):
-    return crud_health.create_health_data(db, health)
+@router.post("/health_records/", response_model=HealthRecord)
+def create_record(record: HealthRecordCreate, db: Session = Depends(get_db)):
+    return crud_health.create_health_record(db=db, health=record)
 
-@router.get("/{user_id}", response_model=List[HealthRead])
-def read_user_health_data(user_id: str, db: Session = Depends(get_db)):
-    data = crud_health.get_health_data(db, user_id)
-    if not data:
-        raise HTTPException(status_code=404, detail="Health data not found")
-    return data
-
+@router.get("/health_records/", response_model=List[HealthRecord])
+def read_records(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud_health.get_health_records(db, skip=skip, limit=limit)
