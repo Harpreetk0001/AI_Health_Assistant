@@ -1,5 +1,3 @@
-# models/health.py
-
 from sqlalchemy import Column, String, Date, UUID, ForeignKey
 from sqlalchemy.orm import relationship
 from uuid import uuid4
