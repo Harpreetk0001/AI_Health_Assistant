@@ -1,5 +1,3 @@
-# crud/health.py
-
 from sqlalchemy.orm import Session
 from app.models.health import HealthRecord
 from app.models.emergency_contact import EmergencyContact
