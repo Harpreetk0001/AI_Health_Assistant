@@ -1,17 +1,15 @@
-# models/emergency_contact.py
-
-from sqlalchemy import Column, String, UUID, ForeignKey
-from sqlalchemy.orm import relationship
-from uuid import uuid4
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 from app.db.base import Base
 
 class EmergencyContact(Base):
     __tablename__ = "emergency_contacts"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    health_record_id = Column(UUID(as_uuid=True), ForeignKey("health_records.id"), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
-
-    # Link back to health record
-    health_record = relationship("HealthRecord", back_populates="emergency_contacts")
+    relationship = Column(String, nullable=False)
+    phone_number = Column(String, nullable=False)
+    priority = Column(Integer, nullable=False)
+    notify_by_sms = Column(Boolean, default=True)
