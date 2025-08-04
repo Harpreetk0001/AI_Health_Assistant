@@ -1,19 +1,9 @@
-from sqlalchemy import Column, Float, Boolean, Text, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-from datetime import datetime
-from app.db.base import Base
+from sqlalchemy import Column, String, DateTime, ForeignKey
+from app.db.base_class import Base
 
-class HealthVitals(Base):
-    __tablename__ = "health_vitals"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    heart_rate = Column(Float)
-    bp_systolic = Column(Float)
-    bp_diastolic = Column(Float)
-    temperature = Column(Float)
-    spo2 = Column(Float)
-    fall_detected = Column(Boolean, default=False)
-    notes = Column(Text, nullable=True)
+class Health(Base):
+    __tablename__ = "health_records"
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    record_date = Column(DateTime, nullable=False)
+    summary = Column(String)
