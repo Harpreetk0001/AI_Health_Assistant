@@ -1,6 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
-from uuid import UUID
 from datetime import datetime
 from enum import Enum
 
@@ -13,24 +11,19 @@ class UserBase(BaseModel):
     full_name: str
     email: EmailStr
     role: UserRole
-    language_preference: Optional[str] = None
+    language_preference: str | None = None
 
 class UserCreate(UserBase):
     password: str
 
-class UserUpdate(UserBase):
-    pass
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    language_preference: str | None = None
 
-class UserInDBBase(UserBase):
-    id: UUID
+class User(UserBase):
+    id: str
     created_at: datetime
 
     class Config:
         orm_mode = True
-
-class User(UserInDBBase):
-    pass
-
-class UserInDB(UserInDBBase):
-    hashed_password: str
 
