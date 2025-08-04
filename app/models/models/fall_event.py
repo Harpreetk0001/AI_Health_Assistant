@@ -1,20 +1,10 @@
-from sqlalchemy import Column, Enum, Boolean, String, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-from datetime import datetime
-from app.db.base import Base
-
-class FallSeverityEnum(str, enum.Enum):
-    low = "low"
-    moderate = "moderate"
-    severe = "severe"
+from sqlalchemy import Column, String, DateTime, ForeignKey
+from app.db.base_class import Base
 
 class FallEvent(Base):
     __tablename__ = "fall_events"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    severity = Column(Enum(FallSeverityEnum), nullable=False)
-    video_snapshot = Column(String, nullable=True)
-    escalated = Column(Boolean, default=False)
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    detected_at = Column(DateTime, nullable=False)
+    severity = Column(String)
+    location = Column(String)
