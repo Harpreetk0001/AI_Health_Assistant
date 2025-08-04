@@ -1,14 +1,10 @@
 from sqlalchemy import Column, String, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-from datetime import datetime
-from app.db.base import Base
+from app.db.base_class import Base
 
-class ActivityLog(Base):
+class Activity(Base):
     __tablename__ = "activity_logs"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    action = Column(String, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    ip_address = Column(String)
+    id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    activity_type = Column(String, nullable=False)
+    description = Column(String)
+    timestamp = Column(DateTime, nullable=False)
