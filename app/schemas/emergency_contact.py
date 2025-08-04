@@ -1,10 +1,22 @@
-from sqlalchemy import Column, String, ForeignKey
-from app.db.base_class import Base
+from pydantic import BaseModel
 
-class EmergencyContact(Base):
-    __tablename__ = "emergency_contacts"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    name = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
-    relationship = Column(String)
+class EmergencyContactBase(BaseModel):
+    name: str
+    phone: str
+    relationship: str | None = None
+
+class EmergencyContactCreate(EmergencyContactBase):
+    user_id: str
+
+class EmergencyContactUpdate(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    relationship: str | None = None
+
+class EmergencyContact(EmergencyContactBase):
+    id: str
+    user_id: str
+
+    class Config:
+        orm_mode = True
+
