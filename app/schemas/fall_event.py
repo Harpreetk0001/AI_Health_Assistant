@@ -1,10 +1,22 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey
-from app.db.base_class import Base
+from pydantic import BaseModel
+from datetime import datetime
 
-class FallEvent(Base):
-    __tablename__ = "fall_events"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    detected_at = Column(DateTime, nullable=False)
-    severity = Column(String)
-    location = Column(String)
+class FallEventBase(BaseModel):
+    severity: str | None = None
+    location: str | None = None
+
+class FallEventCreate(FallEventBase):
+    user_id: str
+    detected_at: datetime
+
+class FallEventUpdate(BaseModel):
+    severity: str | None = None
+    location: str | None = None
+
+class FallEvent(FallEventBase):
+    id: str
+    user_id: str
+    detected_at: datetime
+
+    class Config:
+        orm_mode = True
