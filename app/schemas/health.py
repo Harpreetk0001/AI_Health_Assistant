@@ -1,31 +1,20 @@
 from pydantic import BaseModel
-from uuid import UUID
-from datetime import date
-from typing import List, Optional
+from datetime import datetime
 
-class EmergencyContactBase(BaseModel):
-    name: str
-    phone: str
+class HealthBase(BaseModel):
+    summary: str | None = None
 
-class EmergencyContactCreate(EmergencyContactBase):
-    pass
+class HealthCreate(HealthBase):
+    user_id: str
+    record_date: datetime
 
-class EmergencyContact(EmergencyContactBase):
-    id: UUID
+class HealthUpdate(BaseModel):
+    summary: str | None = None
 
-    class Config:
-        orm_mode = True
-
-class HealthRecordBase(BaseModel):
-    name: str
-    dob: date
-
-class HealthRecordCreate(HealthRecordBase):
-    emergency_contacts: Optional[List[EmergencyContactCreate]] = []
-
-class HealthRecord(HealthRecordBase):
-    id: UUID
-    emergency_contacts: List[EmergencyContact] = []
+class Health(HealthBase):
+    id: str
+    user_id: str
+    record_date: datetime
 
     class Config:
         orm_mode = True
