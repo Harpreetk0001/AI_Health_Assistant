@@ -9,7 +9,10 @@ class DashboardScreen(Screen):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
         layout.add_widget(Label(text="Welcome to MedBuddy Dashboard"))
-        layout.add_widget(Button(text="Go to Health Stats", on_press=lambda x: self.manager.current = 'health'))
+        layout.add_widget(Button(
+            text="Go to Health Stats",
+            on_press=lambda x: setattr(self.manager, 'current', 'health')
+        ))
         self.add_widget(layout)
 
 class HealthStatsScreen(Screen):
@@ -18,7 +21,10 @@ class HealthStatsScreen(Screen):
         layout = BoxLayout(orientation='vertical')
         layout.add_widget(Label(text="Heart Rate: 72 bpm"))
         layout.add_widget(Label(text="Hydration: Normal"))
-        layout.add_widget(Button(text="Go to Profile", on_press=lambda x: self.manager.current = 'profile'))
+        layout.add_widget(Button(
+            text="Go to Profile",
+            on_press=lambda x: setattr(self.manager, 'current', 'profile')
+        ))
         self.add_widget(layout)
 
 class ProfileScreen(Screen):
@@ -27,7 +33,10 @@ class ProfileScreen(Screen):
         layout = BoxLayout(orientation='vertical')
         layout.add_widget(Label(text="User: John Smith"))
         layout.add_widget(Label(text="Age: 72"))
-        layout.add_widget(Button(text="Back to Dashboard", on_press=lambda x: self.manager.current = 'dashboard'))
+        layout.add_widget(Button(
+            text="Back to Dashboard",
+            on_press=lambda x: setattr(self.manager, 'current', 'dashboard')
+        ))
         self.add_widget(layout)
 
 class MedBuddyApp(App):
@@ -40,3 +49,4 @@ class MedBuddyApp(App):
 
 if __name__ == '__main__':
     MedBuddyApp().run()
+
