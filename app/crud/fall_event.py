@@ -1,45 +1,28 @@
-from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from uuid import UUID
+from models import fall_event as models
+from schemas import fall_event as schemas
+import uuid
 
-from db import get_db
-from models import FallEvents
-from schemas import FallEventCreate, FallEventUpdate
-
-router = APIRouter(prefix="/fall_events", tags=["Fall Events"])
-
-@router.post("/", response_model=FallEventCreate)
-def create_fall_event(event: FallEventCreate, db: Session = Depends(get_db)):
-    new_event = FallEvents(**event.dict())
-    db.add(new_event)
+def create_fall_event(db: Session, event: schemas.FallEventCreate):
+    db_event = models.FallEvent(id=str(uuid.uuid4()), **event.dict())
+    db.add(db_event)
     db.commit()
-    db.refresh(new_event)
-    return new_event
+    db.refresh(db_event)
+    return db_event
 
-@router.get("/{event_id}", response_model=FallEventCreate)
-def get_fall_event(event_id: UUID, db: Session = Depends(get_db)):
-    event = db.query(FallEvents).get(event_id)
-    if not event:
-        raise HTTPException(status_code=404, detail="Fall event not found")
-    return event
+def get_fall_events(db: Session, user_id: str):
+    return db.query(models.FallEvent).filter(models.FallEvent.user_id == user_id).all()
 
-@router.put("/{event_id}", response_model=FallEventCreate)
-def update_fall_event(event_id: UUID, event_update: FallEventUpdate, db: Session = Depends(get_db)):
-    event = db.query(FallEvents).get(event_id)
-    if not event:
-        raise HTTPException(status_code=404, detail="Fall event not found")
-    for key, value in event_update.dict(exclude_unset=True).items():
-        setattr(event, key, value)
+def get_fall_event(db: Session, event_id: str):
+    return db.query(models.FallEvent).filter(models.FallEvent.id == event_id).first()
+
+def update_fall_event(db: Session, db_event: models.FallEvent, event: schemas.FallEventUpdate):
+    for key, value in event.dict(exclude_unset=True).items():
+        setattr(db_event, key, value)
     db.commit()
-    db.refresh(event)
-    return event
+    db.refresh(db_event)
+    return db_event
 
-@router.delete("/{event_id}")
-def delete_fall_event(event_id: UUID, db: Session = Depends(get_db)):
-    event = db.query(FallEvents).get(event_id)
-    if not event:
-        raise HTTPException(status_code=404, detail="Fall event not found")
-    db.delete(event)
+def delete_fall_event(db: Session, db_event: models.FallEvent):
+    db.delete(db_event)
     db.commit()
-    return {"message": "Fall event deleted"}
-
