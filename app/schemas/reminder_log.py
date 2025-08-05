@@ -1,23 +1,24 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
 class ReminderLogBase(BaseModel):
-    message: str
-    remind_at: datetime
-    completed: bool | None = False
+    user_id: UUID
+    reminder: str
+    status: str
 
 class ReminderLogCreate(ReminderLogBase):
-    user_id: str
+    due_at: datetime
 
 class ReminderLogUpdate(BaseModel):
-    message: str | None = None
-    remind_at: datetime | None = None
-    completed: bool | None = None
+    reminder: str
+    status: str
+    due_at: datetime
 
-class ReminderLog(ReminderLogBase):
-    id: str
-    user_id: str
+class ReminderLogResponse(ReminderLogBase):
+    id: UUID
+    due_at: datetime
+    sent_at: datetime
 
     class Config:
         orm_mode = True
-
