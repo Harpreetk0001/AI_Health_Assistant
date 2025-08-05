@@ -1,10 +1,14 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
-from app.db.base_class import Base
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey, Integer
+from db.base import Base
+import uuid
 
 class MentalHealthLog(Base):
     __tablename__ = "mental_health_logs"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    mood = Column(String)
-    note = Column(Text)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    mood = Column(String, nullable=False)
+    anxiety_level = Column(Integer, nullable=True)
+    stress_level = Column(Integer, nullable=True)
+    notes = Column(String, nullable=True)
     logged_at = Column(DateTime, nullable=False)
