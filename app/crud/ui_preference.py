@@ -1,44 +1,34 @@
-from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from models import UIPreferences
-from database import get_db
-from schemas import UIPreferenceCreate, UIPreferenceOut
-import uuid
+from models import ui_preference as models
+from schemas import ui_preference as schemas
 
-router = APIRouter(prefix="/ui_preferences", tags=["UI Preferences"])
-
-@router.post("/", response_model=UIPreferenceOut)
-def create_ui_pref(data: UIPreferenceCreate, db: Session = Depends(get_db)):
-    pref = UIPreferences(**data.dict())
-    db.add(pref)
+def create_ui_preference(db: Session, preference: schemas.UIPreferenceCreate):
+    db_pref = models.UIPreference(**preference.dict())
+    db.add(db_pref)
     db.commit()
-    db.refresh(pref)
-    return pref
+    db.refresh(db_pref)
+    return db_pref
 
-@router.get("/{pref_id}", response_model=UIPreferenceOut)
-def get_ui_pref(pref_id: uuid.UUID, db: Session = Depends(get_db)):
-    pref = db.query(UIPreferences).get(pref_id)
-    if not pref:
-        raise HTTPException(status_code=404, detail="UI preference not found")
-    return pref
+def get_ui_preferences(db: Session, skip=0, limit=100):
+    return db.query(models.UIPreference).offset(skip).limit(limit).all()
 
-@router.put("/{pref_id}", response_model=UIPreferenceOut)
-def update_ui_pref(pref_id: uuid.UUID, data: UIPreferenceCreate, db: Session = Depends(get_db)):
-    pref = db.query(UIPreferences).get(pref_id)
-    if not pref:
-        raise HTTPException(status_code=404, detail="UI preference not found")
-    for key, value in data.dict().items():
-        setattr(pref, key, value)
-    db.commit()
-    db.refresh(pref)
-    return pref
+def get_ui_preference(db: Session, pref_id: str):
+    return db.query(models.UIPreference).filter(models.UIPreference.id == pref_id).first()
 
-@router.delete("/{pref_id}")
-def delete_ui_pref(pref_id: uuid.UUID, db: Session = Depends(get_db)):
-    pref = db.query(UIPreferences).get(pref_id)
-    if not pref:
-        raise HTTPException(status_code=404, detail="UI preference not found")
-    db.delete(pref)
-    db.commit()
-    return {"detail": "UI preference deleted"}
+def update_ui_preference(db: Session, pref_id: str, updates: schemas.UIPreferenceUpdate):
+    db_pref = db.query(models.UIPreference).filter(models.UIPreference.id == pref_id).first()
+    if db_pref:
+        for field, value in updates.dict(exclude_unset=True).items():
+            setattr(db_pref, field, value)
+        db.commit()
+        db.refresh(db_pref)
+    return db_pref
+
+def delete_ui_preference(db: Session, pref_id: str):
+    db_pref = db.query(models.UIPreference).filter(models.UIPreference.id == pref_id).first()
+    if db_pref:
+        db.delete(db_pref)
+        db.commit()
+    return db_pref
+
 
