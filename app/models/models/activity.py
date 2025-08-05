@@ -1,10 +1,14 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey
-from app.db.base_class import Base
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey, Integer
+from db.base import Base
+import uuid
 
-class Activity(Base):
+class ActivityLog(Base):
     __tablename__ = "activity_logs"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     activity_type = Column(String, nullable=False)
-    description = Column(String)
-    timestamp = Column(DateTime, nullable=False)
+    duration_minutes = Column(Integer, nullable=True)
+    steps_count = Column(Integer, nullable=True)
+    calories_burned = Column(Integer, nullable=True)
+    logged_at = Column(DateTime, nullable=False)
