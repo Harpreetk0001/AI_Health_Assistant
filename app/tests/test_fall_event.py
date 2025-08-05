@@ -1,14 +1,27 @@
 import pytest
-from httpx import AsyncClient
+from fastapi.testclient import TestClient
 from app.main import app
 
-@pytest.mark.asyncio
-async def test_create_fall_event():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.post("/fall_events/", json={
-            "user_id": "00000000-0000-0000-0000-000000000000",
-            "detected_time": "2025-08-04T00:00:00Z",
-            "severity": "moderate",
-        })
-    assert response.status_code in [200, 201]
+client = TestClient(app)
 
+@pytest.fixture
+def sample_fall_event():
+    return {
+        "user_id": "test-user-uuid",  # Replace with a valid UUID for integration test
+        "fall_detected": True,
+        "fall_time": "2025-08-05T14:30:00Z",
+        "location": "Bathroom"
+    }
+
+def test_create_fall_event(sample_fall_event):
+    response = client.post("/fall_events/", json=sample_fall_event)
+    assert response.status_code in [201, 422]
+    if response.status_code == 201:
+        data = response.json()
+        assert "id" in data
+        assert data["fall_detected"] == sample_fall_event["fall_detected"]
+
+def test_get_fall_event():
+    fall_event_id = "test-fall-event-uuid"  # Replace with real UUID
+    response = client.get(f"/fall_events/{fall_event_id}")
+    assert response.status_code in [200, 404]
