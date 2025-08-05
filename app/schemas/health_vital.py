@@ -1,25 +1,25 @@
 from pydantic import BaseModel
+from typing import Optional
+from uuid import UUID
 from datetime import datetime
 
 class HealthVitalBase(BaseModel):
-    vital_type: str
-    value: float
-    unit: str | None = None
+    blood_pressure: Optional[str] = None
+    heart_rate: Optional[float] = None
+    hydration_level: Optional[float] = None
+    sleep_hours: Optional[float] = None
+    steps: Optional[float] = None
 
 class HealthVitalCreate(HealthVitalBase):
-    user_id: str
-    recorded_at: datetime
+    user_id: UUID
 
-class HealthVitalUpdate(BaseModel):
-    vital_type: str | None = None
-    value: float | None = None
-    unit: str | None = None
+class HealthVitalUpdate(HealthVitalBase):
+    pass
 
-class HealthVital(HealthVitalBase):
-    id: str
-    user_id: str
+class HealthVitalRead(HealthVitalBase):
+    id: UUID
+    user_id: UUID
     recorded_at: datetime
 
     class Config:
         orm_mode = True
-
