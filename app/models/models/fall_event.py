@@ -1,10 +1,15 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey
-from app.db.base_class import Base
+from sqlalchemy import Column, String, DateTime, Float, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from datetime import datetime
+from db.base import Base
 
 class FallEvent(Base):
     __tablename__ = "fall_events"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    detected_at = Column(DateTime, nullable=False)
-    severity = Column(String)
-    location = Column(String)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    detected_at = Column(DateTime, default=datetime.utcnow)
+    location = Column(String, nullable=True)
+    severity = Column(String, nullable=True)
+    sensor_data = Column(String, nullable=True)
