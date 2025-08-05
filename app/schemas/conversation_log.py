@@ -1,20 +1,19 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
-class ConversationBase(BaseModel):
-    message: str
-    sender: str
+class ConversationLogBase(BaseModel):
+    user_id: UUID
+    content: str
 
-class ConversationCreate(ConversationBase):
-    user_id: str
+class ConversationLogCreate(ConversationLogBase):
+    pass
 
-class ConversationUpdate(BaseModel):
-    message: str | None = None
-    sender: str | None = None
+class ConversationLogUpdate(BaseModel):
+    content: str
 
-class Conversation(ConversationBase):
-    id: str
-    user_id: str
+class ConversationLogResponse(ConversationLogBase):
+    id: UUID
     timestamp: datetime
 
     class Config:
