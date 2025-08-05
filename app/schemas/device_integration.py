@@ -1,23 +1,22 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
 class DeviceIntegrationBase(BaseModel):
+    user_id: UUID
     device_name: str
-    device_type: str | None = None
-    is_active: bool | None = True
+    integration_status: str
 
 class DeviceIntegrationCreate(DeviceIntegrationBase):
-    user_id: str
+    pass
 
 class DeviceIntegrationUpdate(BaseModel):
-    device_name: str | None = None
-    device_type: str | None = None
-    is_active: bool | None = None
+    device_name: str
+    integration_status: str
 
-class DeviceIntegration(DeviceIntegrationBase):
-    id: str
-    user_id: str
-    connected_at: datetime | None = None
+class DeviceIntegrationResponse(DeviceIntegrationBase):
+    id: UUID
+    integrated_at: datetime
 
     class Config:
         orm_mode = True
