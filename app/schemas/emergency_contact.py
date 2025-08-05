@@ -1,22 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+from typing import Optional
+from uuid import UUID
 
 class EmergencyContactBase(BaseModel):
     name: str
-    phone: str
-    relationship: str | None = None
+    relationship: Optional[str] = None
+    phone_number: str
+    email: Optional[EmailStr] = None
 
 class EmergencyContactCreate(EmergencyContactBase):
-    user_id: str
+    user_id: UUID
 
-class EmergencyContactUpdate(BaseModel):
-    name: str | None = None
-    phone: str | None = None
-    relationship: str | None = None
+class EmergencyContactUpdate(EmergencyContactBase):
+    pass
 
-class EmergencyContact(EmergencyContactBase):
-    id: str
-    user_id: str
+class EmergencyContactRead(EmergencyContactBase):
+    id: UUID
+    user_id: UUID
 
     class Config:
         orm_mode = True
-
