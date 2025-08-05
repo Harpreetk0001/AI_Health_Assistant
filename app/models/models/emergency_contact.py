@@ -1,10 +1,14 @@
 from sqlalchemy import Column, String, ForeignKey
-from app.db.base_class import Base
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from db.base import Base
 
 class EmergencyContact(Base):
     __tablename__ = "emergency_contacts"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
-    phone = Column(String, nullable=False)
-    relationship = Column(String)
+    relationship = Column(String, nullable=True)
+    phone_number = Column(String, nullable=False)
+    email = Column(String, nullable=True)
