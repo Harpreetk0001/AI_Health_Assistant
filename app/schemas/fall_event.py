@@ -1,21 +1,22 @@
 from pydantic import BaseModel
+from typing import Optional
+from uuid import UUID
 from datetime import datetime
 
 class FallEventBase(BaseModel):
-    severity: str | None = None
-    location: str | None = None
+    location: Optional[str] = None
+    severity: Optional[str] = None
+    sensor_data: Optional[str] = None
 
 class FallEventCreate(FallEventBase):
-    user_id: str
-    detected_at: datetime
+    user_id: UUID
 
-class FallEventUpdate(BaseModel):
-    severity: str | None = None
-    location: str | None = None
+class FallEventUpdate(FallEventBase):
+    pass
 
-class FallEvent(FallEventBase):
-    id: str
-    user_id: str
+class FallEventRead(FallEventBase):
+    id: UUID
+    user_id: UUID
     detected_at: datetime
 
     class Config:
