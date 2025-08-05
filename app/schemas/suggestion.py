@@ -1,21 +1,20 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
 class SuggestionBase(BaseModel):
+    user_id: UUID
     suggestion_text: str
 
 class SuggestionCreate(SuggestionBase):
-    user_id: str
-    created_at: datetime
+    pass
 
 class SuggestionUpdate(BaseModel):
-    suggestion_text: str | None = None
+    suggestion_text: str
 
-class Suggestion(SuggestionBase):
-    id: str
-    user_id: str
+class SuggestionResponse(SuggestionBase):
+    id: UUID
     created_at: datetime
 
     class Config:
         orm_mode = True
-
