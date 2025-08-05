@@ -1,23 +1,22 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
 class MentalHealthLogBase(BaseModel):
-    mood: str | None = None
-    note: str | None = None
+    user_id: UUID
+    mood: str
+    notes: str
 
 class MentalHealthLogCreate(MentalHealthLogBase):
-    user_id: str
-    logged_at: datetime
+    pass
 
 class MentalHealthLogUpdate(BaseModel):
-    mood: str | None = None
-    note: str | None = None
+    mood: str
+    notes: str
 
-class MentalHealthLog(MentalHealthLogBase):
-    id: str
-    user_id: str
-    logged_at: datetime
+class MentalHealthLogResponse(MentalHealthLogBase):
+    id: UUID
+    recorded_at: datetime
 
     class Config:
         orm_mode = True
-
