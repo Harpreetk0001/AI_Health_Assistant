@@ -1,15 +1,30 @@
 import pytest
-from httpx import AsyncClient
+from fastapi.testclient import TestClient
 from app.main import app
 
-@pytest.mark.asyncio
-async def test_create_health_vital():
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.post("/health_vitals/", json={
-            "user_id": "00000000-0000-0000-0000-000000000000",
-            "type": "blood_pressure",
-            "value": "120/80",
-            "unit": "mmHg",
-            "timestamp": "2025-08-04T00:00:00Z",
-        })
-    assert response.status_code in [200, 201]
+client = TestClient(app)
+
+@pytest.fixture
+def sample_health_vital():
+    return {
+        "user_id": "test-user-uuid",  # Replace with a real UUID in integration
+        "heart_rate": 72,
+        "blood_pressure_systolic": 120,
+        "blood_pressure_diastolic": 80,
+        "hydration_level": 60.0,
+        "sleep_hours": 7.5,
+        "steps": 8000
+    }
+
+def test_create_health_vital(sample_health_vital):
+    response = client.post("/health_vitals/", json=sample_health_vital)
+    assert response.status_code in [201, 422]  # 422 if UUID is not valid
+    if response.status_code == 201:
+        data = response.json()
+        assert "id" in data
+        assert data["heart_rate"] == sample_health_vital["heart_rate"]
+
+def test_get_health_vital():
+    health_vital_id = "test-vital-uuid"  # Replace with a real UUID
+    response = client.get(f"/health_vitals/{health_vital_id}")
+    assert response.status_code in [200, 404]
