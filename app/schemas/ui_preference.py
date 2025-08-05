@@ -1,19 +1,22 @@
 from pydantic import BaseModel
-from typing import Any
+from uuid import UUID
 
 class UIPreferenceBase(BaseModel):
-    preferences: dict[str, Any]
+    user_id: UUID
+    theme: str
+    font_size: str
+    language: str
 
 class UIPreferenceCreate(UIPreferenceBase):
-    user_id: str
+    pass
 
 class UIPreferenceUpdate(BaseModel):
-    preferences: dict[str, Any] | None = None
+    theme: str
+    font_size: str
+    language: str
 
-class UIPreference(UIPreferenceBase):
-    id: str
-    user_id: str
+class UIPreferenceResponse(UIPreferenceBase):
+    id: UUID
 
     class Config:
         orm_mode = True
-
