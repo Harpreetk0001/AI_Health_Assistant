@@ -1,21 +1,20 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
-class ActivityBase(BaseModel):
-    activity_type: str
-    description: str | None = None
+class ActivityLogBase(BaseModel):
+    user_id: UUID
+    activity: str
 
-class ActivityCreate(ActivityBase):
-    user_id: str
+class ActivityLogCreate(ActivityLogBase):
+    pass
 
-class ActivityUpdate(BaseModel):
-    activity_type: str | None = None
-    description: str | None = None
+class ActivityLogUpdate(BaseModel):
+    activity: str
 
-class Activity(ActivityBase):
-    id: str
-    user_id: str
-    timestamp: datetime
+class ActivityLogResponse(ActivityLogBase):
+    id: UUID
+    created_at: datetime
 
     class Config:
         orm_mode = True
