@@ -1,11 +1,13 @@
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
-from app.db.base_class import Base
+from sqlalchemy import Column, String, UUID, ForeignKey, DateTime
+from db.base import Base
+import uuid
 
 class DeviceIntegration(Base):
     __tablename__ = "device_integrations"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     device_name = Column(String, nullable=False)
-    device_type = Column(String)
-    connected_at = Column(DateTime)
-    is_active = Column(Boolean, default=True)
+    device_type = Column(String, nullable=False)
+    integration_date = Column(DateTime, nullable=False)
+    status = Column(String, nullable=False)
