@@ -1,48 +1,28 @@
-from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from uuid import UUID
-from database import get_db
-from models import HealthVitals
-from schemas import HealthVitalCreate, HealthVitalOut, HealthVitalUpdate
+from models import health_vital as models
+from schemas import health_vital as schemas
+import uuid
 
-router = APIRouter(prefix="/health-vitals", tags=["Health Vitals"])
-
-@router.post("/", response_model=HealthVitalOut)
-def create_health_vital(vital: HealthVitalCreate, db: Session = Depends(get_db)):
-    new_vital = HealthVitals(**vital.dict())
-    db.add(new_vital)
+def create_health_vital(db: Session, hv: schemas.HealthVitalCreate):
+    db_hv = models.HealthVital(id=str(uuid.uuid4()), **hv.dict())
+    db.add(db_hv)
     db.commit()
-    db.refresh(new_vital)
-    return new_vital
+    db.refresh(db_hv)
+    return db_hv
 
-@router.get("/", response_model=list[HealthVitalOut])
-def get_all_vitals(db: Session = Depends(get_db)):
-    return db.query(HealthVitals).all()
+def get_health_vitals(db: Session, user_id: str):
+    return db.query(models.HealthVital).filter(models.HealthVital.user_id == user_id).all()
 
-@router.get("/{vital_id}", response_model=HealthVitalOut)
-def get_vital(vital_id: UUID, db: Session = Depends(get_db)):
-    vital = db.query(HealthVitals).filter(HealthVitals.id == vital_id).first()
-    if not vital:
-        raise HTTPException(status_code=404, detail="Health vital not found")
-    return vital
+def get_health_vital(db: Session, hv_id: str):
+    return db.query(models.HealthVital).filter(models.HealthVital.id == hv_id).first()
 
-@router.put("/{vital_id}", response_model=HealthVitalOut)
-def update_vital(vital_id: UUID, update: HealthVitalUpdate, db: Session = Depends(get_db)):
-    vital = db.query(HealthVitals).filter(HealthVitals.id == vital_id).first()
-    if not vital:
-        raise HTTPException(status_code=404, detail="Health vital not found")
-    for key, value in update.dict(exclude_unset=True).items():
-        setattr(vital, key, value)
+def update_health_vital(db: Session, db_hv: models.HealthVital, hv: schemas.HealthVitalUpdate):
+    for key, value in hv.dict(exclude_unset=True).items():
+        setattr(db_hv, key, value)
     db.commit()
-    db.refresh(vital)
-    return vital
+    db.refresh(db_hv)
+    return db_hv
 
-@router.delete("/{vital_id}")
-def delete_vital(vital_id: UUID, db: Session = Depends(get_db)):
-    vital = db.query(HealthVitals).filter(HealthVitals.id == vital_id).first()
-    if not vital:
-        raise HTTPException(status_code=404, detail="Health vital not found")
-    db.delete(vital)
+def delete_health_vital(db: Session, db_hv: models.HealthVital):
+    db.delete(db_hv)
     db.commit()
-    return {"detail": "Health vital deleted"}
-
