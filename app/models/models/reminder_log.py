@@ -1,10 +1,13 @@
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
-from app.db.base_class import Base
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey, Boolean
+from db.base import Base
+import uuid
 
 class ReminderLog(Base):
     __tablename__ = "reminder_logs"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    message = Column(String, nullable=False)
-    remind_at = Column(DateTime, nullable=False)
-    completed = Column(Boolean, default=False)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    reminder_type = Column(String, nullable=False)
+    reminder_time = Column(DateTime, nullable=False)
+    acknowledged = Column(Boolean, default=False)
+    notes = Column(String, nullable=True)
