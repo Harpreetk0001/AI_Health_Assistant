@@ -1,52 +1,38 @@
-from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from uuid import UUID
+from models import user as models
+from schemas import user as schemas
+import uuid
 
-from database import get_db
-from models import Users
-from schemas import UserCreate, UserOut, UserUpdate
-
-router = APIRouter(prefix="/users", tags=["Users"])
-
-@router.post("/", response_model=UserOut)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(Users).filter(Users.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = Users(**user.dict())
-    db.add(new_user)
+def create_user(db: Session, user: schemas.UserCreate):
+    db_user = models.User(
+        id=str(uuid.uuid4()),
+        full_name=user.full_name,
+        email=user.email,
+        hashed_password=user.hashed_password,
+        role=user.role,
+        language_preference=user.language_preference
+    )
+    db.add(db_user)
     db.commit()
-    db.refresh(new_user)
-    return new_user
+    db.refresh(db_user)
+    return db_user
 
-@router.get("/", response_model=list[UserOut])
-def get_users(db: Session = Depends(get_db)):
-    return db.query(Users).all()
+def get_user(db: Session, user_id: str):
+    return db.query(models.User).filter(models.User.id == user_id).first()
 
-@router.get("/{user_id}", response_model=UserOut)
-def get_user(user_id: UUID, db: Session = Depends(get_db)):
-    user = db.query(Users).filter(Users.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+def get_user_by_email(db: Session, email: str):
+    return db.query(models.User).filter(models.User.email == email).first()
 
-@router.put("/{user_id}", response_model=UserOut)
-def update_user(user_id: UUID, user_update: UserUpdate, db: Session = Depends(get_db)):
-    user = db.query(Users).filter(Users.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    for key, value in user_update.dict(exclude_unset=True).items():
-        setattr(user, key, value)
+def get_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(models.User).offset(skip).limit(limit).all()
+
+def update_user(db: Session, db_user: models.User, user: schemas.UserUpdate):
+    for key, value in user.dict(exclude_unset=True).items():
+        setattr(db_user, key, value)
     db.commit()
-    db.refresh(user)
-    return user
+    db.refresh(db_user)
+    return db_user
 
-@router.delete("/{user_id}")
-def delete_user(user_id: UUID, db: Session = Depends(get_db)):
-    user = db.query(Users).filter(Users.id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    db.delete(user)
+def delete_user(db: Session, db_user: models.User):
+    db.delete(db_user)
     db.commit()
-    return {"detail": "User deleted"}
-
