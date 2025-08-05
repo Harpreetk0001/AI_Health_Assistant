@@ -1,44 +1,32 @@
-from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from models import Suggestions
-from database import get_db
-from schemas import SuggestionCreate, SuggestionOut
-import uuid
+from models import suggestion as models
+from schemas import suggestion as schemas
 
-router = APIRouter(prefix="/suggestions", tags=["Suggestions"])
-
-@router.post("/", response_model=SuggestionOut)
-def create_suggestion(data: SuggestionCreate, db: Session = Depends(get_db)):
-    suggestion = Suggestions(**data.dict())
-    db.add(suggestion)
+def create_suggestion(db: Session, suggestion: schemas.SuggestionCreate):
+    db_suggestion = models.Suggestion(**suggestion.dict())
+    db.add(db_suggestion)
     db.commit()
-    db.refresh(suggestion)
-    return suggestion
+    db.refresh(db_suggestion)
+    return db_suggestion
 
-@router.get("/{suggestion_id}", response_model=SuggestionOut)
-def get_suggestion(suggestion_id: uuid.UUID, db: Session = Depends(get_db)):
-    suggestion = db.query(Suggestions).get(suggestion_id)
-    if not suggestion:
-        raise HTTPException(status_code=404, detail="Suggestion not found")
-    return suggestion
+def get_suggestions(db: Session, skip=0, limit=100):
+    return db.query(models.Suggestion).offset(skip).limit(limit).all()
 
-@router.put("/{suggestion_id}", response_model=SuggestionOut)
-def update_suggestion(suggestion_id: uuid.UUID, data: SuggestionCreate, db: Session = Depends(get_db)):
-    suggestion = db.query(Suggestions).get(suggestion_id)
-    if not suggestion:
-        raise HTTPException(status_code=404, detail="Suggestion not found")
-    for key, value in data.dict().items():
-        setattr(suggestion, key, value)
-    db.commit()
-    db.refresh(suggestion)
-    return suggestion
+def get_suggestion(db: Session, suggestion_id: str):
+    return db.query(models.Suggestion).filter(models.Suggestion.id == suggestion_id).first()
 
-@router.delete("/{suggestion_id}")
-def delete_suggestion(suggestion_id: uuid.UUID, db: Session = Depends(get_db)):
-    suggestion = db.query(Suggestions).get(suggestion_id)
-    if not suggestion:
-        raise HTTPException(status_code=404, detail="Suggestion not found")
-    db.delete(suggestion)
-    db.commit()
-    return {"detail": "Suggestion deleted"}
+def update_suggestion(db: Session, suggestion_id: str, updates: schemas.SuggestionUpdate):
+    db_suggestion = db.query(models.Suggestion).filter(models.Suggestion.id == suggestion_id).first()
+    if db_suggestion:
+        for field, value in updates.dict(exclude_unset=True).items():
+            setattr(db_suggestion, field, value)
+        db.commit()
+        db.refresh(db_suggestion)
+    return db_suggestion
 
+def delete_suggestion(db: Session, suggestion_id: str):
+    db_suggestion = db.query(models.Suggestion).filter(models.Suggestion.id == suggestion_id).first()
+    if db_suggestion:
+        db.delete(db_suggestion)
+        db.commit()
+    return db_suggestion
