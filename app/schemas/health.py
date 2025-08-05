@@ -1,20 +1,22 @@
 from pydantic import BaseModel
+from typing import Optional
+from uuid import UUID
 from datetime import datetime
 
 class HealthBase(BaseModel):
-    summary: str | None = None
+    summary: Optional[str] = None
+    notes: Optional[str] = None
 
 class HealthCreate(HealthBase):
-    user_id: str
-    record_date: datetime
+    user_id: UUID
 
-class HealthUpdate(BaseModel):
-    summary: str | None = None
+class HealthUpdate(HealthBase):
+    pass
 
-class Health(HealthBase):
-    id: str
-    user_id: str
-    record_date: datetime
+class HealthRead(HealthBase):
+    id: UUID
+    user_id: UUID
+    recorded_at: datetime
 
     class Config:
         orm_mode = True
