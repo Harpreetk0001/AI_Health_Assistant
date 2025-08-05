@@ -1,9 +1,12 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
-from app.db.base_class import Base
+from sqlalchemy import Column, String, DateTime, UUID, ForeignKey
+from db.base import Base
+import uuid
 
 class Suggestion(Base):
     __tablename__ = "suggestions"
-    id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
-    suggestion_text = Column(Text, nullable=False)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    suggestion_text = Column(String, nullable=False)
     created_at = Column(DateTime, nullable=False)
+    status = Column(String, nullable=False)  # "pending", "reviewed", etc.
