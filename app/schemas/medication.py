@@ -1,25 +1,28 @@
 from pydantic import BaseModel
+from uuid import UUID
 from datetime import datetime
 
 class MedicationBase(BaseModel):
+    user_id: UUID
     name: str
-    dosage: str | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    dosage: str
+    frequency: str
 
 class MedicationCreate(MedicationBase):
-    user_id: str
+    start_date: datetime
+    end_date: datetime
 
 class MedicationUpdate(BaseModel):
-    name: str | None = None
-    dosage: str | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    name: str
+    dosage: str
+    frequency: str
+    start_date: datetime
+    end_date: datetime
 
-class Medication(MedicationBase):
-    id: str
-    user_id: str
+class MedicationResponse(MedicationBase):
+    id: UUID
+    start_date: datetime
+    end_date: datetime
 
     class Config:
         orm_mode = True
-
