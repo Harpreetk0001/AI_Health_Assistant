@@ -1,18 +1,16 @@
-from sqlalchemy import Column, String, DateTime, Enum
-from app.db.base_class import Base
-import enum
-
-class UserRole(enum.Enum):
-    elderly = "elderly"
-    caregiver = "caregiver"
-    admin = "admin"
+from sqlalchemy import Column, String, Enum, DateTime
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from datetime import datetime
+from db.base import Base
 
 class User(Base):
     __tablename__ = "users"
-    id = Column(String, primary_key=True, index=True)
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     full_name = Column(String, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.elderly, nullable=False)
-    language_preference = Column(String)
-    created_at = Column(DateTime, nullable=False)
+    role = Column(Enum("elderly", "caregiver", "admin", name="user_roles"), nullable=False)
+    language_preference = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
