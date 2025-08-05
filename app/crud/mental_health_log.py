@@ -1,44 +1,34 @@
-from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from models import MentalHealthLogs
-from database import get_db
-from schemas import MentalHealthLogCreate, MentalHealthLogOut
-import uuid
+from models import mental_health_log as models
+from schemas import mental_health_log as schemas
 
-router = APIRouter(prefix="/mental_health_logs", tags=["Mental Health Logs"])
-
-@router.post("/", response_model=MentalHealthLogOut)
-def create_log(data: MentalHealthLogCreate, db: Session = Depends(get_db)):
-    log = MentalHealthLogs(**data.dict())
-    db.add(log)
+def create_mental_health_log(db: Session, log: schemas.MentalHealthLogCreate):
+    db_log = models.MentalHealthLog(**log.dict())
+    db.add(db_log)
     db.commit()
-    db.refresh(log)
-    return log
+    db.refresh(db_log)
+    return db_log
 
-@router.get("/{log_id}", response_model=MentalHealthLogOut)
-def get_log(log_id: uuid.UUID, db: Session = Depends(get_db)):
-    log = db.query(MentalHealthLogs).get(log_id)
-    if not log:
-        raise HTTPException(status_code=404, detail="Mental health log not found")
-    return log
+def get_mental_health_logs(db: Session, skip=0, limit=100):
+    return db.query(models.MentalHealthLog).offset(skip).limit(limit).all()
 
-@router.put("/{log_id}", response_model=MentalHealthLogOut)
-def update_log(log_id: uuid.UUID, data: MentalHealthLogCreate, db: Session = Depends(get_db)):
-    log = db.query(MentalHealthLogs).get(log_id)
-    if not log:
-        raise HTTPException(status_code=404, detail="Mental health log not found")
-    for key, value in data.dict().items():
-        setattr(log, key, value)
-    db.commit()
-    db.refresh(log)
-    return log
+def get_mental_health_log(db: Session, log_id: str):
+    return db.query(models.MentalHealthLog).filter(models.MentalHealthLog.id == log_id).first()
 
-@router.delete("/{log_id}")
-def delete_log(log_id: uuid.UUID, db: Session = Depends(get_db)):
-    log = db.query(MentalHealthLogs).get(log_id)
-    if not log:
-        raise HTTPException(status_code=404, detail="Mental health log not found")
-    db.delete(log)
-    db.commit()
-    return {"detail": "Mental health log deleted"}
+def update_mental_health_log(db: Session, log_id: str, updates: schemas.MentalHealthLogUpdate):
+    db_log = db.query(models.MentalHealthLog).filter(models.MentalHealthLog.id == log_id).first()
+    if db_log:
+        for field, value in updates.dict(exclude_unset=True).items():
+            setattr(db_log, field, value)
+        db.commit()
+        db.refresh(db_log)
+    return db_log
+
+def delete_mental_health_log(db: Session, log_id: str):
+    db_log = db.query(models.MentalHealthLog).filter(models.MentalHealthLog.id == log_id).first()
+    if db_log:
+        db.delete(db_log)
+        db.commit()
+    return db_log
+
 
