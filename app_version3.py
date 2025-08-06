@@ -11,18 +11,19 @@ from langchain.schema import HumanMessage, AIMessage
 from gtts import gTTS
 import tkinter as tk
 from threading import Thread
-import pygame
+import pygame        #Prepares the audio system to play sound using
 import sys
 
 # Initialize pygame mixer
 pygame.mixer.init()
 
-# Audio queue setup
+# Audio queue setup fr real-time input
 q = queue.Queue()
 def callback(indata, frames, time, status):
     q.put(indata.copy())
 
-# Whisper model setup
+# Whisper model setup WhisperModel: Transcribes voice to text.
+# DialoGPT: Generates conversational responses (will subsitute for more appropriate model).
 print("Device set to use", "cuda" if torch.cuda.is_available() else "cpu")
 whisper_model = WhisperModel("small", device="cpu", compute_type="int8")
 
@@ -36,7 +37,7 @@ llm = pipeline(
 # Memory setup
 memory = ConversationBufferMemory(return_messages=True)
 
-# Record audio
+# Record audio Records 8 seconds audio input and returns a NumPy array.
 def record_audio(duration=8, fs=16000):
     q.queue.clear()
     with sd.InputStream(samplerate=fs, channels=1, callback=callback):
@@ -54,7 +55,7 @@ def transcribe(audio_data):
         print(" Transcription error:", e)
         return ""
 
-# Generate LLM response
+# Generate LLM response. Reconstructs a chat prompt with history, sends to DialoGPT and extracts the assistant's part of the output, Stores both user and assistant messages into memory.
 def generate_response(user_input):
     history = ""
     for msg in memory.chat_memory.messages:
@@ -82,7 +83,7 @@ def speak_response(response):
         print(" Empty response. Skipping TTS.")
         return
     try:
-        tts = gTTS(response)
+        tts = gTTS(response) #uses gTTS to create an MP3 and saves temorarily, plays via pygame and deletes file after
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
             tts.save(fp.name)
             pygame.mixer.music.load(fp.name)
@@ -94,7 +95,7 @@ def speak_response(response):
     except Exception as e:
         print(f" TTS Error: {e}")
 
-# Chatbot runner (voice)
+# Chatbot runner (voice) Records → Transcribes → Generates → Speaks
 def run_chatbot():
     try:
         audio = record_audio()
@@ -105,7 +106,7 @@ def run_chatbot():
             print("️ No speech detected.")
             return
 
-        if "exit" in user_input.lower():
+        if "exit" in user_input.lower():    #Quits if "exit" is heard
             print(" Exiting.")
             root.quit()
             return
@@ -168,3 +169,4 @@ if __name__ == "__main__":
         run_terminal_chatbot()
     else:
         start_gui()
+
