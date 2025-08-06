@@ -1,0 +1,30 @@
+# Core system
+numpy
+torch
+sounddevice
+pygame
+gtts
+tk
+queue
+tempfile
+
+# AI Models
+transformers
+faster-whisper
+langchain
+
+# Fall Detection + Pose Estimation
+opencv-python
+mediapipe
+folium
+
+# Optional (for GPU support or larger models)
+accelerate
+
+# Web APIs and GUI tools (used/optional in your overall system)
+Flask
+fastapi
+uvicorn
+
+# UI Testing + Prototyping Tools (used in stack, optional)
+requests
