@@ -4,7 +4,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-from app.db.base import Base  # Import your models' declarative base
+from app.db.base import Base  # Import models' declarative base
 from app import models         # Import models so Alembic can auto-generate migrations
 
 from dotenv import load_dotenv
@@ -18,16 +18,16 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Add your models' metadata for 'autogenerate' support
+# Add models' metadata for 'autogenerate' support
 target_metadata = Base.metadata
 
-# Fetch DB URL from environment variable (never hardcode secrets!)
+# Fetch DB URL from environment variable
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg2://user:password@localhost/dbname")
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 
 def run_migrations_offline():
-    """Run migrations in 'offline' mode (generates SQL scripts)."""
+    
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
@@ -42,7 +42,7 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    """Run migrations in 'online' mode (connects to DB directly)."""
+    
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
