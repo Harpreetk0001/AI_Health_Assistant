@@ -12,12 +12,21 @@ class Vitals:
     #health monitoring grab historical vital signs from JSON DB#
     #grab vitals over certain period of time and store in numpy array
     def getHistory():
+        #
+        pass
 
     #health monitoring AI integration#
     #use AI data analysis to generate alerts
+    def healthDataAnalysis():
+        pass
+
+    #health monitoring graph visualisation#
+    def visualisation():
+        
 
     def displayHealthWarning():
         warning = "Your", vital_type, "is not healthy, please seek medical advice/care"
+        print(warning)
     
 
 class Hydration(Vitals):
@@ -73,9 +82,5 @@ class Steps(HealthVital):
             #produce alert
             self.displayHealthWarning()
 
-
-#health monitoring graph visualisation#
-
-#health monitoring alerts#
 
 
