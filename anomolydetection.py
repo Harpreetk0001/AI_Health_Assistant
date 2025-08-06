@@ -9,12 +9,12 @@ mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
 # Constants
-FALL_ANGLE_THRESHOLD = 100
-FALL_ANGLE_FRAMES = 10
-POSE_CONFIDENCE_THRESHOLD = 0.6
-MAX_FALLBACK_FRAMES = 60
-COOLDOWN_SECONDS = 30
-
+FALL_ANGLE_THRESHOLD = 100 
+FALL_ANGLE_FRAMES = 10    #must stay in 10 frames 
+POSE_CONFIDENCE_THRESHOLD = 0.6     #pose landmarks 
+MAX_FALLBACK_FRAMES = 60        
+COOLDOWN_SECONDS = 30        #avoiding repeated alerts
+#Used Apple wat simulated 
 ALTITUDE_DROP_THRESHOLD = 15  # meters
 NO_MOVEMENT_DURATION = 60     # seconds
 HEART_RATE_THRESHOLD = 100    # bpm
@@ -144,4 +144,5 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 print(" Exiting fall detection.")
 cap.release()
 cv2.destroyAllWindows()
+
 
