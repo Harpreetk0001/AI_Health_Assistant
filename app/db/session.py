@@ -18,7 +18,7 @@ engine = create_engine(
     pool_timeout=30,       # seconds: prevents DB exhaustion attacks
     pool_recycle=1800,     # seconds: refresh idle connections every 30 min
     connect_args={
-        "options": "-c statement_timeout=5000"  # 5s query timeout: thwarts slow-query DoS
+        "options": "-c statement_timeout=5000"  
     },
 )
 
