@@ -14,20 +14,21 @@ FALL_ANGLE_FRAMES = 10    #must stay in 10 frames
 POSE_CONFIDENCE_THRESHOLD = 0.6     #pose landmarks 
 MAX_FALLBACK_FRAMES = 60        
 COOLDOWN_SECONDS = 30        #avoiding repeated alerts
-#Used Apple wat simulated 
-ALTITUDE_DROP_THRESHOLD = 15  # meters
-NO_MOVEMENT_DURATION = 60     # seconds
-HEART_RATE_THRESHOLD = 100    # bpm
-STEP_THRESHOLD = 0
 
-# Helper: Calculate angle
-def calculate_angle(a, b, c):
+#Used Apple watch simulated detection 
+ALTITUDE_DROP_THRESHOLD = 15  # meters - potential fall
+NO_MOVEMENT_DURATION = 60     # seconds
+HEART_RATE_THRESHOLD = 100    # bpm - not moving
+STEP_THRESHOLD = 0        # not moving
+
+# Calculate angle Function  Sholder, kneww, hipp points 
+def calculate_angle(a, b, c):        #middle point angle 'b' to see if a person is bent or collapsed posture
     a, b, c = np.array(a), np.array(b), np.array(c)
     ba, bc = a - b, c - b
     cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-6)
     return np.degrees(np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
 
-# Simulate Apple Watch data (replace with real input in production)
+# Simulate Apple Watch data static for this point as we don't have real-time yet
 def get_watch_data():
     now = datetime.now()
     return {
@@ -38,9 +39,12 @@ def get_watch_data():
         "prev_altitude": 70,
         "steps": 0,
         "heart_rate": 110
+        "blood pressure": 120
+        "hydration": 2
+        "sleep": 8
     }
 
-# Apple Watch-based fallback detection
+# Apple Watch-based fallback detection - If all (sudden altitude drop, no movement and heart rate above 100) are true it assumes fall has occured
 def detect_fall_from_watch(data):
     t2 = datetime.fromisoformat(data["timestamp"])
     alt_drop = data["prev_altitude"] - data["altitude"]
@@ -62,15 +66,15 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
     last_fall_time = None
     last_alert_time = None
 
-    while cap.isOpened():
-        ret, frame = cap.read()
+    while cap.isOpened(): #frame by frame analysis
+        ret, frame = cap.read() #reading a frame
         if not ret:
             break
 
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #convert to RGB for MediaPipline
         results = pose.process(frame_rgb)
 
-        # No person detected → skip
+        # No person detected - skip
         if not results.pose_landmarks:
             fallback_low_conf_counter += 1
             if fallback_low_conf_counter >= FALL_ANGLE_FRAMES:
@@ -88,7 +92,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
         fallback_low_conf_counter = 0  # reset
 
-        # Extract landmarks
+        # Extract landmarks When person is detected:
         lm = results.pose_landmarks.landmark
         l_shoulder = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
                       lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
@@ -100,11 +104,11 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         visibilities = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].visibility,
                         lm[mp_pose.PoseLandmark.LEFT_HIP.value].visibility,
                         lm[mp_pose.PoseLandmark.LEFT_KNEE.value].visibility]
-        avg_vis = sum(visibilities) / 3
+        avg_vis = sum(visibilities) / 3         #check visibility (confidence if pose detection)
 
         if avg_vis > POSE_CONFIDENCE_THRESHOLD:
             angle = calculate_angle(l_shoulder, l_hip, l_knee)
-            if angle < FALL_ANGLE_THRESHOLD:
+            if angle < FALL_ANGLE_THRESHOLD:        #detect low angle lying down
                 low_angle_counter += 1
                 if low_angle_counter >= FALL_ANGLE_FRAMES:
                     now = datetime.now()
@@ -136,13 +140,14 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
             fall_detected = False
 
-        # Show window
+        # Display Webcam with Pose and Alerts
         cv2.imshow("Fall Detection", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
 print(" Exiting fall detection.")
-cap.release()
+cap.release()     #exit 
 cv2.destroyAllWindows()
+
 
 
