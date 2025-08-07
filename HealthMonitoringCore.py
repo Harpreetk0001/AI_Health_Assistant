@@ -3,28 +3,22 @@ import numpy as np
 import time
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 
-#recording the vitals over an amount of time to display in graph form and reference in functions#
 VitalsMatrix = ([],[],[],[],[],[])
 
-#timestamps for the y-axis and to reference specific records by time#
 TimeStamps = []
 
-#create a consolidated health graph with all vitals#
 class HealthGraph:
-
-    #initialise line graph#
     def __init__(self, title="Health Analytics", x_label="Days", y_label="Vitals"):
         self.title = title
         self.x_label = x_label
         self.y_label = y_label
         self.fig, self.ax = plt.subplots()
 
-    #add health vital line#
     def add_line(self, x_data, y_data, label=None, color=None, linestyle='-'):
         self.ax.plot(x_data, y_data, label=label, color=color, linestyle=linestyle)
 
-    #show/display graph with matplotlib#
     def show(self, legend=True, grid=True):
         self.ax.set_title(self.title)
         self.ax.set_xlabel(self.x_label)
@@ -35,7 +29,6 @@ class HealthGraph:
             self.ax.grid(True)
         plt.show()
 
-    #show the health graph referencing the vitals matrix and timestamps#
     def showVitals():
         graph = HealthGraph(title="Health Analytics", x_label="Days", y_label="Vitals")
 
@@ -48,7 +41,7 @@ class HealthGraph:
         
         graph.show()
         
-#contains object for health records (5 key vitals) as per database code#
+
 class Vitals:
     def __init__(self, hydration, sleep, hb, bp_systolic, bp_diastolic, steps, timestamp = None):
         self.hydration = hydration
@@ -72,7 +65,6 @@ class Vitals:
         VitalsMatrix[4].append(self.bp_diastolic)
         self.bp_systolic = bp_systolic
         self.bp_diastolic = bp_diastolic
-        #format BP value
         bp_value = f"{bp_systolic}/{bp_diastolic}"
 
         VitalsMatrix[5].append(self.steps)
@@ -97,7 +89,7 @@ class Vitals:
 
     def displayHealthWarning(self, vital_type):
         warning = "Your " + vital_type + " is not healthy, please seek medical advice/care"
-        print(warning)
+        return warning
 
     #custom function and set boundary for alerts
     def alert_boundary(self):
@@ -141,8 +133,3 @@ Vitals.alert_boundary(Vitals3)
 
 #display graph
 HealthGraph.showVitals()
-
-
-
-
-
