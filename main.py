@@ -4,10 +4,13 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.button import Button
-from kivy.uix.screenmanager import Screen
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.metrics import dp
 from kivy.core.window import Window
 import os, sys
+import Front-End.py
 
 #import files from backend
 from fastapi import FastAPI
@@ -38,8 +41,8 @@ import HealthMonitoringCore.py as HealthMonitoring
 import ToDoList.py as ToDoList
 
 #import ai models
-import anomalydetection.py
-import chatbot.py
+import anomalydetection.py as AnomalyDetection
+import chatbot.py as ChatBot
 
 #define variables with data
 
@@ -56,10 +59,26 @@ import chatbot.py
 
 #import the health screen
 class HealthScreen(Screen):
+    def on_enter(self, *args):
+        # get the container by its KV id
+        container = self.ids.vitals_graph_container
+        container.clear_widgets()
+
+        # get the Matplotlib Figure from your backend
+        fig = HealthGraph.showVitals()
+
+        # wrap it in a Kivy widget
+        canvas_widget = FigureCanvasKivyAgg(fig)
+
+        # add to the container
+        container.add_widget(canvas_widget) 
     
-class MyApp(App):
+class MedBuddyApp(App):
     def build(self):
-        return RootWidget()
+        self.sm = ScreenManager()
+        self.sm.add_widget(HealthScreen(name="health"))
+        # … add other screens …
+        return self.sm
 
 if __name__ == "__main__":
     MyApp().run()
