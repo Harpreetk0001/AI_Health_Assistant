@@ -1,0 +1,678 @@
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.uix.screenmanager import Screen
+from kivy.metrics import dp
+from kivy.core.window import Window
+import os, sys
+
+# App-wide background color (DBE4E0)
+Window.clearcolor = (219/255, 228/255, 224/255, 1)
+
+def find_emoji_font() -> str:
+    """Return a path to an installed emoji-capable font (best effort)."""
+    candidates = []
+    if sys.platform.startswith("win"):
+        candidates += [
+            r"C:\Windows\Fonts\seguiemj.ttf",       
+            r"C:\Windows\Fonts\SegoeUIEmoji.ttf",
+        ]
+    elif sys.platform == "darwin":
+        candidates += ["/System/Library/Fonts/Apple Color Emoji.ttc"]
+    else:
+        candidates += [
+            "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
+            "/usr/share/fonts/truetype/twemoji/TwitterColorEmoji-SVGinOT.ttf",
+            "/usr/share/fonts/truetype/emojione/emojione-android.ttf",
+        ]
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    return ""  
+
+
+KV = """
+#:import dp kivy.metrics.dp
+
+# ---------- Reusable building blocks ----------
+
+<NavBar@BoxLayout>:
+    size_hint_y: None
+    height: dp(64)
+    padding: dp(8), dp(8)
+    spacing: dp(8)
+    canvas.before:
+        Color:
+            rgba: 0.92, 0.94, 0.96, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(16), dp(16), 0, 0]
+    Button:
+        text: "Home"
+        on_release: app.sm.current = "home"
+    Button:
+        text: "Health"
+        on_release: app.sm.current = "health"
+    Button:
+        text: "Routine"
+        on_release: app.sm.current = "routine"
+    Button:
+        text: "Chatbot"
+        on_release: app.sm.current = "chat"
+    Button:
+        text: "Profile"
+        on_release: app.sm.current = "profile"
+
+<Card@BoxLayout>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: self.minimum_height
+    padding: dp(12)
+    spacing: dp(8)
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(16), dp(16), dp(16), dp(16)]
+    Label:
+        id: title_lbl
+        text: root.title if hasattr(root, "title") else ""
+        bold: True
+        font_size: "18sp"
+        color: 0.15,0.15,0.18,1
+        size_hint_y: None
+        height: self.texture_size[1]
+    BoxLayout:
+        id: body_box
+        size_hint_y: None
+        height: self.minimum_height
+
+<ActionBtn@Button>:
+    font_size: "18sp"
+    size_hint_y: None
+    height: dp(48)
+    background_normal: ""
+    background_color: 0.16, 0.56, 0.96, 1
+    color: 1,1,1,1
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12), dp(12), dp(12), dp(12)]
+
+<Tag@Label>:
+    size_hint_y: None
+    height: dp(28)
+    padding_x: dp(8)
+    color: 1,1,1,1
+    canvas.before:
+        Color:
+            rgba: 0.15,0.5,0.9,1
+        RoundedRectangle:
+            pos: self.x, self.y
+            size: self.width, self.height
+            radius: [dp(10), dp(10), dp(10), dp(10)]
+
+<SOSBtn@Button>:
+    size_hint: None, None
+    size: dp(48), dp(48)
+    text: "SOS"
+    font_size: "16sp"
+    bold: True
+    background_normal: ""
+    background_color: 0.90, 0.10, 0.10, 1
+    color: 0,0,0,1
+    on_release: app.sm.current = "sos"
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Ellipse:
+            pos: self.x, self.y
+            size: self.size
+
+<SettingsBtn@Button>:
+    size_hint: None, None
+    size: dp(48), dp(48)
+    text: "Settings"
+    font_size: "12sp"
+    bold: True
+    background_normal: ""
+    background_color: 0.5, 0.5, 0.5, 1
+    color: 0, 0, 0, 1
+    on_release: app.sm.current = "settings"
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Ellipse:
+            pos: self.x, self.y
+            size: self.size
+
+
+<Header@BoxLayout>:
+    size_hint_y: None
+    height: dp(64)
+    padding: dp(12), dp(8)
+    spacing: dp(12)
+    canvas.before:
+        Color:
+            rgba: 0.96, 0.97, 0.98, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Label:
+        text: root.title if hasattr(root, "title") else "MedBuddy"
+        font_size: "22sp"
+        bold: True
+        color: 0.1,0.1,0.13,1
+
+# ---- Emoji-capable widgets ----
+<EmojiLabel@Label>:
+    # Use the emoji font if available
+    font_name: app.emoji_font if app.emoji_font else self.font_name
+
+<EmojiButton@Button>:
+    font_name: app.emoji_font if app.emoji_font else self.font_name
+
+<ActionButtons@BoxLayout>:
+    orientation: 'vertical'
+    SOSBtn
+    SettingsBtn
+
+# ---------- Screens ----------
+
+
+    
+
+<HomeScreen>:
+    name: "home"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "MedBuddy"
+
+        # Reminders row with SOS and clearer typography on light background
+        BoxLayout:
+            size_hint_y: None
+            spacing: dp(12)
+            ActionButtons
+            BoxLayout:
+                orientation: "vertical"
+                spacing: dp(4)
+                canvas.before:
+                    Color:
+                        rgba: 1,1,1,1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [dp(12), dp(12), dp(12), dp(12)]
+                Label:
+                    text: "Reminders"
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(6)
+                    bold: True
+                    color: 0.12,0.12,0.15,1
+                Label:
+                    text: "Doctor's Appointment  •  11:30 AM"
+                    color: 0.15,0.15,0.18,1
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(6)
+
+        Card:
+            title: "Alerts"
+            BoxLayout:
+                size_hint_y: None
+                height: dp(40)
+                spacing: dp(8)
+                Button:
+                    text: "Blood Pressure Spiked"
+                    background_normal: ""
+                    background_color: 0.95, 0.35, 0.35, 1
+                    color: 1,1,1,1
+                    size_hint_y: None
+                    height: dp(40)
+                    on_release: app.sm.current = "health"
+
+        Card:
+            title: "Vitals"
+            GridLayout:
+                cols: 5
+                size_hint_y: None
+                height: dp(64)
+                padding: 0, dp(4)
+                spacing: dp(8)
+
+                EmojiLabel:
+                    text: "❤️\\n72"
+                EmojiLabel:
+                    text: "🩸\\n120/80"
+                EmojiLabel:
+                    text: "💧\\nGood"
+                EmojiLabel:
+                    text: "😴\\n7h"
+                EmojiLabel:
+                    text: "🚶\\n3.2k"
+
+        Widget:
+
+        # Expanded nav for all screens
+        NavBar
+
+<HealthScreen>:
+    name: "health"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "Health Monitoring"
+
+        Card:
+            title: "Trends"
+            BoxLayout:
+                id: vitals_graph_container
+                size_hint_y: None
+                height: dp(200)
+                # we’ll inject the canvas here
+
+        Card:
+            title: "Alerts"
+            Label:
+                text: "Blood Pressure Spiked"
+                size_hint_y: None
+                height: dp(36)
+                color: 0.8,0.1,0.1,1
+
+        Card:
+            title: "Exercise Videos"
+            BoxLayout:
+                size_hint_y: None
+                height: dp(44)
+                spacing: dp(8)
+                EmojiButton:
+                    text: "⏮"
+                EmojiButton:
+                    text: "▶"
+                EmojiButton:
+                    text: "⏭"
+
+        Widget:
+
+        NavBar
+
+<RoutineScreen>:
+    name: "routine"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "Daily Routine"
+
+        Card:
+            title: "Today (Mon)"
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(6)
+                # simple timeline items
+                EmojiLabel:
+                    text: "7:00  •  Take Medication  ✅"
+                    color: 0.12,0.12,0.15,1
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(4)
+                EmojiLabel:
+                    text: "8:00  •  Hydration  ✅"
+                    color: 0.12,0.12,0.15,1
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(4)
+                EmojiLabel:
+                    text: "10:00 •  Doctor Appointment  ⏳"
+                    color: 0.12,0.12,0.15,1
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(4)
+
+        Card:
+            title: "Reminder Types"
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: dp(120)
+                spacing: dp(8)
+                ToggleButton:
+                    text: "Exercise (ON)" if self.state=="down" else "Exercise (OFF)"
+                    state: "down"
+                ToggleButton:
+                    text: "Sleep (ON)" if self.state=="down" else "Sleep (OFF)"
+                    state: "down"
+                ToggleButton:
+                    text: "Medication (ON)" if self.state=="down" else "Medication (OFF)"
+                    state: "down"
+                ToggleButton:
+                    text: "Hydration (ON)" if self.state=="down" else "Hydration (OFF)"
+                    state: "down"
+
+        Widget:
+
+        NavBar
+
+<ChatbotScreen>:
+    name: "chat"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "AI Health Assistant"
+
+        Card:
+            title: "Conversation"
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: dp(220)
+                spacing: dp(8)
+                Label:
+                    text: "Hello John, how can I help you today?"
+                    color: 0.12,0.12,0.15,1
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(6)
+                Label:
+                    text: "Tip: You can ask for recipes, jokes or health tips."
+                    color: 0.25,0.25,0.3,1
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(6)
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)
+            spacing: dp(8)
+            TextInput:
+                id: user_input
+                hint_text: "Type a message…"
+                multiline: False
+            ActionBtn:
+                text: "Send"
+                on_release: app.fake_send(user_input)
+
+        Widget:
+
+        NavBar
+
+<SupportScreen>:
+    name: "support"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "My Support Network"
+
+        Card:
+            title: "Contacts"
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(8)
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(56)
+                    spacing: dp(8)
+                    canvas.before:
+                        Color:
+                            rgba: 0.98,0.93,0.90,1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(12), dp(12), dp(12), dp(12)]
+                    Label:
+                        text: "Belinda Wen  •  Daughter"
+                        color: 0.12,0.12,0.15,1
+                    Button:
+                        text: "Call"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(56)
+                    spacing: dp(8)
+                    canvas.before:
+                        Color:
+                            rgba: 0.92,0.96,0.99,1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(12), dp(12), dp(12), dp(12)]
+                    Label:
+                        text: "Anna Tanaka  •  Nurse"
+                        color: 0.12,0.12,0.15,1
+                    Button:
+                        text: "Call"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(56)
+                    spacing: dp(8)
+                    canvas.before:
+                        Color:
+                            rgba: 0.90,0.95,0.98,1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [dp(12), dp(12), dp(12), dp(12)]
+                    Label:
+                        text: "Jimmy Cole  •  Nephew"
+                        color: 0.12,0.12,0.15,1
+                    Button:
+                        text: "Call"
+
+        Widget:
+
+        NavBar
+
+<ProfileScreen>:
+    name: "profile"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "User Profile"
+
+        Card:
+            title: "Details"
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: dp(180)
+                spacing: dp(8)
+
+                Label:
+                    text: "Name"
+                    color: 0, 0, 0, 1
+                TextInput:
+                    text: "Harry"
+
+                Label:
+                    text: "Age"
+                    color: 0, 0, 0, 1
+                TextInput:
+                    text: "78"
+
+                Label:
+                    text: "Primary Caregiver"
+                    color: 0, 0, 0, 1
+                TextInput:
+                    text: "Belinda Wen"
+
+                Label:
+                    text: "Caregiver Phone"
+                    color: 0, 0, 0, 1
+                TextInput:
+                    text: "+61 223 344 556"
+    
+        Button:
+            text: "Support"
+            on_release: app.sm.current = "support"
+
+        NavBar
+
+<SettingsScreen>:
+    name: "settings"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "Settings"
+
+        Card:
+            title: "Accessibility"
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: dp(120)
+                spacing: dp(8)
+
+                Label:
+                    text: "Light Mode"
+                    color: 0, 0, 0, 1 
+                ToggleButton:
+                    text: "ON" if self.state == "down" else "OFF"
+                    state: "down"
+
+                Label:
+                    text: "Speech to Text"
+                    color: 0, 0, 0, 1
+                ToggleButton:
+                    text: "ON" if self.state == "down" else "OFF"
+                    state: "down"
+
+                Label:
+                    text: "Hearing Aid"
+                    color: 0, 0, 0, 1
+                ToggleButton:
+                    text: "OFF"
+
+        Card:
+            title: "Font Size"
+            Slider:
+                min: 14
+                max: 28
+                value: 22
+                size_hint_y: None
+                height: dp(36)
+
+        Card:
+            title: "Language"
+            Spinner:
+                text: "English"
+                values: ["English","简体中文","Español","हिंदी"]
+                size_hint_y: None
+                height: dp(40)
+
+        NavBar
+
+<SOSConfirmScreen>:
+    name: "sos"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Header:
+            title: "Emergency"
+
+        BoxLayout:
+            orientation: "vertical"
+            padding: dp(16)
+            spacing: dp(16)
+            size_hint_y: None
+            height: dp(280)
+            canvas.before:
+                Color:
+                    rgba: 1, 0.92, 0.92, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [dp(16), dp(16), dp(16), dp(16)]
+            Label:
+                text: "HELP"
+                font_size: "64sp"
+                color: 0.9,0.1,0.1,1
+                bold: True
+            Label:
+                text: "Confirm call?"
+                font_size: "20sp"
+                color: 0.2,0.2,0.25,1
+            BoxLayout:
+                size_hint_y: None
+                height: dp(56)
+                spacing: dp(12)
+                ActionBtn:
+                    text: "Yes"
+                    background_color: 0.12, 0.65, 0.36, 1
+                    on_release: app.sm.current = "home"
+                ActionBtn:
+                    text: "No"
+                    background_color: 0.65, 0.12, 0.18, 1
+                    on_release: app.sm.current = "home"
+
+        Widget:
+
+        NavBar
+
+# Root
+ScreenManager:
+    HomeScreen:
+    HealthScreen:
+    RoutineScreen:
+    ChatbotScreen:
+    SupportScreen:
+    ProfileScreen:
+    SettingsScreen:
+    SOSConfirmScreen:
+"""
+
+class HomeScreen(Screen): pass
+class HealthScreen(Screen): pass
+class RoutineScreen(Screen): pass
+class ChatbotScreen(Screen): pass
+class SupportScreen(Screen): pass
+class ProfileScreen(Screen): pass
+class SettingsScreen(Screen): pass
+class SOSConfirmScreen(Screen): pass
+
+class MedBuddyApp(App):
+    def build(self):
+        self.title = "MedBuddy"
+        # Make an emoji font available to KV
+        self.emoji_font = find_emoji_font()
+        self.sm = Builder.load_string(KV)
+        return self.sm
+
+    # Simple stub to show input flow on Chatbot
+    def fake_send(self, user_input):
+        txt = user_input.text.strip()
+        if not txt:
+            return
+        user_input.text = ""
+        self.sm.current = "chat"
+
+if __name__ == "__main__":
+    MedBuddyApp().run()
+
