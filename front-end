@@ -4,6 +4,9 @@ from kivy.uix.screenmanager import Screen
 from kivy.metrics import dp
 from kivy.core.window import Window
 import os, sys
+import chatbot  # chatbot.py file
+from threading import Thread
+from kivy.clock import Clock
 
 # App-wide background color (DBE4E0)
 Window.clearcolor = (219/255, 228/255, 224/255, 1)
@@ -384,6 +387,7 @@ KV = """
                 height: dp(220)
                 spacing: dp(8)
                 Label:
+                    id: response_label
                     text: "Hello John, how can I help you today?"
                     color: 0.12,0.12,0.15,1
                     size_hint_y: None
@@ -405,6 +409,7 @@ KV = """
             ActionBtn:
                 text: "Send"
                 on_release: app.fake_send(user_input)
+        
 
         Widget:
 
@@ -664,15 +669,39 @@ class MedBuddyApp(App):
         # Make an emoji font available to KV
         self.emoji_font = find_emoji_font()
         self.sm = Builder.load_string(KV)
+
+         # Initialize chatbot here
+        chatbot.initialize()
+
         return self.sm
 
     # Simple stub to show input flow on Chatbot
-    def fake_send(self, user_input):
-        txt = user_input.text.strip()
-        if not txt:
+   def fake_send(self, user_input_widget):
+        user_text = user_input_widget.text.strip()
+        if not user_text:
+            self.update_label("Please type something.")
             return
-        user_input.text = ""
-        self.sm.current = "chat"
+        user_input_widget.text = ""
+        Thread(target=self.process_interaction, args=(user_text,)).start()
+
+    def process_interaction(self, user_text):
+        print(f"Generating response for: {user_text!r}")
+        response = chatbot.generate_response(user_text)
+        print(f"Got response: {response!r}")
+        Clock.schedule_once(lambda dt: self.update_label(response), 0)
+        chatbot.speak_response(response)
+        
+
+    def update_label(self, text):
+        try:
+            screen = self.sm.get_screen("chat")
+            lbl = screen.ids.response_label
+            lbl.text = text
+            lbl.height = lbl.texture_size[1] + 10  # Add some padding
+            print(f"Updated label to: {text}")
+        except Exception as e:
+            print("Could not update response label:", e)
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
