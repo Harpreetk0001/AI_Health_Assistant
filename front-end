@@ -27,7 +27,7 @@ def find_emoji_font() -> str:
     for p in candidates:
         if os.path.exists(p):
             return p
-    return "" 
+    return ""  
 
 
 KV = """
@@ -47,6 +47,21 @@ KV = """
             pos: self.pos
             size: self.size
             radius: [dp(16), dp(16), 0, 0]
+    Button:
+        text: "Home"
+        on_release: app.sm.current = "home"
+    Button:
+        text: "Health"
+        on_release: app.sm.current = "health"
+    Button:
+        text: "Routine"
+        on_release: app.sm.current = "routine"
+    Button:
+        text: "Chatbot"
+        on_release: app.sm.current = "chat"
+    Button:
+        text: "Profile"
+        on_release: app.sm.current = "profile"
 
 <Card@BoxLayout>:
     orientation: "vertical"
@@ -104,19 +119,38 @@ KV = """
 
 <SOSBtn@Button>:
     size_hint: None, None
-    size: dp(88), dp(88)
+    size: dp(48), dp(48)
     text: "SOS"
-    font_size: "28sp"
+    font_size: "16sp"
     bold: True
     background_normal: ""
     background_color: 0.90, 0.10, 0.10, 1
-    color: 1,1,1,1
+    color: 0,0,0,1
+    on_release: app.sm.current = "sos"
     canvas.before:
         Color:
             rgba: self.background_color
         Ellipse:
             pos: self.x, self.y
             size: self.size
+
+<SettingsBtn@Button>:
+    size_hint: None, None
+    size: dp(48), dp(48)
+    text: "Settings"
+    font_size: "12sp"
+    bold: True
+    background_normal: ""
+    background_color: 0.5, 0.5, 0.5, 1
+    color: 0, 0, 0, 1
+    on_release: app.sm.current = "settings"
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        Ellipse:
+            pos: self.x, self.y
+            size: self.size
+
 
 <Header@BoxLayout>:
     size_hint_y: None
@@ -143,7 +177,15 @@ KV = """
 <EmojiButton@Button>:
     font_name: app.emoji_font if app.emoji_font else self.font_name
 
+<ActionButtons@BoxLayout>:
+    orientation: 'vertical'
+    SOSBtn
+    SettingsBtn
+
 # ---------- Screens ----------
+
+
+    
 
 <HomeScreen>:
     name: "home"
@@ -158,10 +200,8 @@ KV = """
         # Reminders row with SOS and clearer typography on light background
         BoxLayout:
             size_hint_y: None
-            height: dp(96)
             spacing: dp(12)
-            SOSBtn:
-                on_release: app.sm.current = "sos"
+            ActionButtons
             BoxLayout:
                 orientation: "vertical"
                 spacing: dp(4)
@@ -222,28 +262,7 @@ KV = """
         Widget:
 
         # Expanded nav for all screens
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <HealthScreen>:
     name: "health"
@@ -287,28 +306,7 @@ KV = """
 
         Widget:
 
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <RoutineScreen>:
     name: "routine"
@@ -366,28 +364,7 @@ KV = """
 
         Widget:
 
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <ChatbotScreen>:
     name: "chat"
@@ -431,28 +408,7 @@ KV = """
 
         Widget:
 
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <SupportScreen>:
     name: "support"
@@ -525,28 +481,7 @@ KV = """
 
         Widget:
 
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <ProfileScreen>:
     name: "profile"
@@ -565,47 +500,36 @@ KV = """
                 size_hint_y: None
                 height: dp(180)
                 spacing: dp(8)
+
                 Label:
                     text: "Name"
+                    color: 0, 0, 0, 1
                 TextInput:
                     text: "Harry"
+
                 Label:
                     text: "Age"
+                    color: 0, 0, 0, 1
                 TextInput:
                     text: "78"
+
                 Label:
                     text: "Primary Caregiver"
+                    color: 0, 0, 0, 1
                 TextInput:
                     text: "Belinda Wen"
+
                 Label:
                     text: "Caregiver Phone"
+                    color: 0, 0, 0, 1
                 TextInput:
                     text: "+61 223 344 556"
+    
+        Button:
+            text: "Support"
+            on_release: app.sm.current = "support"
 
-        Widget:
-
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <SettingsScreen>:
     name: "settings"
@@ -627,18 +551,21 @@ KV = """
 
                 Label:
                     text: "Light Mode"
+                    color: 0, 0, 0, 1 
                 ToggleButton:
                     text: "ON" if self.state == "down" else "OFF"
                     state: "down"
 
                 Label:
                     text: "Speech to Text"
+                    color: 0, 0, 0, 1
                 ToggleButton:
                     text: "ON" if self.state == "down" else "OFF"
                     state: "down"
 
                 Label:
                     text: "Hearing Aid"
+                    color: 0, 0, 0, 1
                 ToggleButton:
                     text: "OFF"
 
@@ -659,30 +586,7 @@ KV = """
                 size_hint_y: None
                 height: dp(40)
 
-        Widget:
-
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 <SOSConfirmScreen>:
     name: "sos"
@@ -731,28 +635,7 @@ KV = """
 
         Widget:
 
-        NavBar:
-            Button:
-                text: "Home"
-                on_release: app.sm.current = "home"
-            Button:
-                text: "Health"
-                on_release: app.sm.current = "health"
-            Button:
-                text: "Routine"
-                on_release: app.sm.current = "routine"
-            Button:
-                text: "Chatbot"
-                on_release: app.sm.current = "chat"
-            Button:
-                text: "Support"
-                on_release: app.sm.current = "support"
-            Button:
-                text: "Profile"
-                on_release: app.sm.current = "profile"
-            Button:
-                text: "Settings"
-                on_release: app.sm.current = "settings"
+        NavBar
 
 # Root
 ScreenManager:
@@ -793,5 +676,3 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
-
-
