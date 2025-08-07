@@ -47,3 +47,10 @@ import chatbot.py
     #display home page from front end 
         #load data from backend to front end
         #load core functionality
+
+class MyApp(App):
+    def build(self):
+        return RootWidget()
+
+if __name__ == "__main__":
+    MyApp().run()
