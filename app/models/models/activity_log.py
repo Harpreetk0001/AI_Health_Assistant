@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, DateTime, UUID, ForeignKey, Integer
-from db.base import Base
+from sqlalchemy import Column, String, DateTime, ForeignKey, Integer
+from sqlalchemy.dialects.postgresql import UUID
+from app.db.base import Base
 import uuid
 
 class ActivityLog(Base):
