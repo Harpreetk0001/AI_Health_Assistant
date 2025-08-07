@@ -1,14 +1,10 @@
 import json
 import numpy as np
 import time
+from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
-VitalsMatrix = np.array([],
-                        [],
-                        [],
-                        [],
-                        [],
-                        [])
+VitalsMatrix = ([],[],[],[],[],[])
 
 TimeStamps = []
 
@@ -32,7 +28,7 @@ class HealthGraph:
             self.ax.grid(True)
         plt.show()
 
-    def showVitals(VitalsMatrix, TimeStamps):
+    def showVitals():
         graph = HealthGraph(title="Health Analytics", x_label="Days", y_label="Vitals")
 
         graph.add_line(TimeStamps, VitalsMatrix[0], label="Hydration (ml)", color="blue")
@@ -46,12 +42,33 @@ class HealthGraph:
         
 
 class Vitals:
-    def __init__(self, vital_type, measure, timestamp = None):
-        self.vital_type = vital_type
-        self.measure = measure
+    def __init__(self, hydration, sleep, hb, bp_systolic, bp_diastolic, steps, timestamp = None):
+        self.hydration = hydration
+        self.sleep = sleep
+        self.hb = hb
+        self.bp_systolic = bp_systolic
+        self.bp_diastolic = bp_diastolic
+        self.steps = steps
+        
         self.timestamp = timestamp or datetime.now()
 
         TimeStamps.append(self.timestamp)
+
+        VitalsMatrix[0].append(self.hydration)
+
+        VitalsMatrix[1].append(self.sleep)
+
+        VitalsMatrix[2].append(self.hb)
+
+        VitalsMatrix[3].append(self.bp_systolic)
+        VitalsMatrix[4].append(self.bp_diastolic)
+        self.bp_systolic = bp_systolic
+        self.bp_diastolic = bp_diastolic
+        bp_value = f"{bp_systolic}/{bp_diastolic}"
+
+        VitalsMatrix[5].append(self.steps)
+
+        
 
     #health monitoring grab historical vital signs from JSON DB#
     #grab vitals over certain period of time and store in numpy array
@@ -69,75 +86,53 @@ class Vitals:
     def healthDataAnalysis():
         pass
 
-    def displayHealthWarning():
-        warning = "Your", vital_type, "is not healthy, please seek medical advice/care"
+    def displayHealthWarning(self, vital_type):
+        warning = "Your " + vital_type + " is not healthy, please seek medical advice/care"
         print(warning)
-    
-
-class Hydration(Vitals):
-    def __init__(self, value_ml):
-        VitalsMatrixself[0].append(value_ml)
-        super().__init__("Hydration", value_ml)
-        
 
     #custom function and set boundary for alerts
     def alert_boundary(self):
-        if self.value_ml not in range(2100, 2600):
+        if self.hydration not in range(2100, 2600):
             #produce alert
-            self.displayHealthWarning()
+            self.displayHealthWarning("Hydration")
 
-class Sleep(Vitals):
-    def __init__(self, hours):
-        VitalsMatrixself[1].append(hours)
-        super().__init__("Sleep", hours)
-
-    #custom function and set boundary for alerts
-    def alert_boundary(self):
-        if self.hours not in range(7, 10):
+        if self.sleep not in range(7, 10):
             #produce alert
-            self.displayHealthWarning()
+            self.displayHealthWarning("Sleep")
 
-class HeartRate(Vitals):
-    def __init__(self, bpm):
-        VitalsMatrixself[2].append(bpm)
-        super().__init__("Heart Rate", bpm)
-
-    #custom function and set boundary for alerts
-    def alert_boundary(self):
-        if self.bpm not in range(60, 100):
+        if self.hb not in range(60, 100):
             #produce alert
-            self.displayHealthWarning()
+            self.displayHealthWarning("Heartbreat")
 
-class BloodPressure(Vitlas):
-    def __init__(self, systolic, diastolic):
-        VitalsMatrixself[3].append(systolic)
-        VitalsMatrixself[4].append(diastolic)
-        self.systolic = systolic
-        self.diastolic = diastolic
-        value = f"{systolic}/{diastolic}"
-        super().__init__("Blood Pressure", value)
-
-    #custom function and set boundary for alerts
-    def alert_boundary(self):
-        if (self.systolic > 120) and (self.diastolic > 80):
+        if (self.bp_systolic > 120) and (self.bp_diastolic > 80):
             #produce alert
-            self.displayHealthWarning()
+            self.displayHealthWarning("Blood pressure")
 
-class Steps(HealthVital):
-    def __init__(self, count):
-        VitalsMatrixself[5].append(count)
-        super().__init__("Steps", count)
-        
-
-    #custom function and set boundary for alerts
-    def alert_boundary(self):
-        if self.count not in range(6000, 8000):
+        if self.steps not in range(6000, 8000):
             #produce alert
-            self.displayHealthWarning()
+            self.displayHealthWarning("Steps")
 
 ##TESTING##
 
-Steps()
+#data record 1#
+dayBefore = (datetime.now()) - timedelta(days=2)
+Vitals1 = Vitals(2150, 8, 75, 110, 75, 7500, dayBefore)
+
+#data record 2#
+yesterday = (datetime.now()) - timedelta(days=1)
+Vitals2 = Vitals(2000, 9, 80, 120, 80, 8000)
+
+#data record 3#
+Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
+
+#check for alert boundaries
+Vitals.alert_boundary(Vitals1)
+Vitals.alert_boundary(Vitals2)
+Vitals.alert_boundary(Vitals3)
+
+#display graph
+HealthGraph.showVitals()
+
 
 
 
