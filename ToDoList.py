@@ -18,6 +18,10 @@ class ToDoList:
         for t in self.tasks:
             if Task in self.tasks:
                 self.tasks.remove(Task)
+            if Task in self.complete:
+                self.complete.remove(Task)
+            if Task in self.incomplete:
+                self.incomplete.remove(Task)
 
     def updateTask(self, Task, attribute, new_value):
         if attribute == "title":
@@ -61,6 +65,13 @@ class ToDoList:
             Task.getTask(i)
             print()
 
+    def displayByTag(self, selectedTag):
+        print("FILTERED LIST\n")
+        for f in self.tasks:
+            if f.tag == selectedTag:
+                Task.getTask(f)
+                print()
+        
 class Task:
     def __init__(self, dueDateTime, title, description, tag, status):
         self.dueDateTime = datetime.strptime(dueDateTime, "%Y-%m-%d %H:%M")
@@ -89,11 +100,11 @@ t1 = Task("2025-03-04 12:00", "BP Tablet", "must have with a glass of water", "M
 TDL.addTask(t1)
 
 #task 2#
-t2 = Task("2025-03-04 09:00", "Walk", "meet Mary-Anne at the park", "Medication", "Complete")
+t2 = Task("2025-03-04 09:00", "Walk", "meet Mary-Anne at the park", "Exercise", "Complete")
 TDL.addTask(t2)
 
 #task 3#
-t3 = Task("2025-03-04 16:00", "Nap", "with whale sounds", "Medication", "Incomplete")
+t3 = Task("2025-03-04 16:00", "Nap", "with whale sounds", "Sleep", "Incomplete")
 TDL.addTask(t3)
 
 #display to do list
@@ -117,3 +128,10 @@ TDL.removeTask(t2)
 TDL.displayList()
 TDL.displayCompleteList()
 TDL.displayIncompleteList()
+
+#test with filters
+print("WITH FILTER - MEDICATION")
+TDL.displayByTag("Medication")
+
+print("WITH FILTER - SLEEP")
+TDL.displayByTag("Sleep")
