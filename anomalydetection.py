@@ -3,7 +3,27 @@ import mediapipe as mp
 import numpy as np
 from datetime import datetime
 import folium
+import requests
 
+#Send to fall_event.py FastAPI
+def send_fall_event_to_api(latitude, longitude, timestamp, severity=0.9):
+    payload = {
+        "latitude": latitude,
+        "longitude": longitude,
+        "timestamp": timestamp,
+        "event_type": "fall",
+        "severity": severity
+    }
+
+    try:
+        response = requests.post("http://localhost:8000/fall_event/", json=payload)
+        if response.status_code == 200:
+            print("  Fall event sent to API successfully.")
+        else:
+            print("  Failed to send fall event:", response.status_code, response.text)
+    except Exception as e:
+        print("  Error sending fall event:", e)
+        
 # Setup Pose detection
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
@@ -38,9 +58,9 @@ def get_watch_data():
         "altitude": 50,
         "prev_altitude": 70,
         "steps": 0,
-        "heart_rate": 110
-        "blood pressure": 120
-        "hydration": 2
+        "heart_rate": 110,
+        "blood_pressure": 120,
+        "hydration": 2,
         "sleep": 8
     }
 
@@ -137,6 +157,13 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             ).add_to(fmap)
             fmap.save("fall_map.html")
             print("️ Fall saved to fall_map.html")
+
+            # Send event to backend API
+            send_fall_event_to_api(
+            latitude=fall_location[0],
+            longitude=fall_location[1],
+            timestamp=last_fall_time.isoformat()
+            )
 
             fall_detected = False
 
