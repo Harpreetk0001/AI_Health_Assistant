@@ -1,6 +1,14 @@
 ##MAIN##
 
-#import files for front-end, backend, dev, ai models
+#import files for front-end
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+
+#import files from backend
+
+#import dev
+
+#import ai models
 
 #load files and data using APIs
 
