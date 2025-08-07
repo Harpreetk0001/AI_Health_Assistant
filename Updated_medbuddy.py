@@ -5,6 +5,11 @@ from kivy.metrics import dp
 from kivy.core.window import Window
 import os, sys
 
+from HealthMonitoringCore import HealthGraph    # for the vitals graph
+from ToDoList import ToDoList                   # for the task manager
+from kivy.uix.label import Label
+
+
 # App-wide background color (DBE4E0)
 Window.clearcolor = (219/255, 228/255, 224/255, 1)
 
@@ -316,6 +321,15 @@ KV = """
 
         Header:
             title: "Daily Routine"
+
+        ScrollView:
+            size_hint_y: None
+            height: dp(200)
+            BoxLayout:
+                id: tasks_container
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
 
         Card:
             title: "Today (Mon)"
@@ -658,21 +672,42 @@ class SettingsScreen(Screen): pass
 class SOSConfirmScreen(Screen): pass
 
 class MedBuddyApp(App):
-    def build(self):
-        self.title = "MedBuddy"
-        # Make an emoji font available to KV
-        self.emoji_font = find_emoji_font()
-        self.sm = Builder.load_string(KV)
-        return self.sm
+     def build(self):
+         self.title = "MedBuddy"
+         # Make an emoji font available to KV
+         self.emoji_font = find_emoji_font()
+         self.sm = Builder.load_string(KV)
+         return self.sm
 
-    # Simple stub to show input flow on Chatbot
-    def fake_send(self, user_input):
-        txt = user_input.text.strip()
-        if not txt:
-            return
-        user_input.text = ""
-        self.sm.current = "chat"
+     def on_start(self):
+         # 1) generate the FigureCanvas
+         canvas = HealthGraph.showVitals()
+         # 2) find the Health screen’s container and add it
+         health_screen = self.sm.get_screen("health")
+         health_screen.ids.vitals_graph_container.add_widget(canvas)
+
+         # 3) (optional) set up your To-Do list
+         self.init_todo_list()
+
+     def init_todo_list(self):
+         # instantiate the ToDoList
+         self.todo = ToDoList()
+         # get the Routine screen and its container
+         routine = self.sm.get_screen("routine")
+         container = routine.ids.tasks_container
+         # add each task as a Label (or your custom widget)
+         for task in self.todo.tasks:
+             container.add_widget(
+                 Label(text=task.title, size_hint_y=None, height=dp(40))
+             )
+
+     # Simple stub to show input flow on Chatbot
+     def fake_send(self, user_input):
+         txt = user_input.text.strip()
+         if not txt:
+             return
+         user_input.text = ""
+         self.sm.current = "chat"
 
 if __name__ == "__main__":
     MedBuddyApp().run()
-
