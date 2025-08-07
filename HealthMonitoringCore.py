@@ -3,7 +3,7 @@ import numpy as np
 import time
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from kivy_garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 
 VitalsMatrix = ([],[],[],[],[],[])
 
@@ -19,17 +19,31 @@ class HealthGraph:
     def add_line(self, x_data, y_data, label=None, color=None, linestyle='-'):
         self.ax.plot(x_data, y_data, label=label, color=color, linestyle=linestyle)
 
+    @staticmethod
     def showVitals():
-        graph = HealthGraph(title="Health Analytics", x_label="Days", y_label="Vitals")
-
+        # 1) Instantiate and build your plot
+        graph = HealthGraph(
+            title="Health Analytics",
+            x_label="Days",
+            y_label="Vitals"
+        )
+        # 2) Add each series
         graph.add_line(TimeStamps, VitalsMatrix[0], label="Hydration (ml)", color="blue")
         graph.add_line(TimeStamps, VitalsMatrix[1], label="Sleep (hrs)", color="red")
         graph.add_line(TimeStamps, VitalsMatrix[2], label="Heartbeat (bpm)", color="green")
         graph.add_line(TimeStamps, VitalsMatrix[3], label="Systolic BP (mmHg)", color="orange")
         graph.add_line(TimeStamps, VitalsMatrix[4], label="Diastolic BP (mmHg)", color="brown")
         graph.add_line(TimeStamps, VitalsMatrix[5], label="Steps", color="purple", linestyle='--')
-        
-        return FigureCanvasKivyAgg(graph)
+
+        # 3) Finalize styling
+        graph.ax.set_title(graph.title)
+        graph.ax.set_xlabel(graph.x_label)
+        graph.ax.set_ylabel(graph.y_label)
+        graph.ax.legend()
+        graph.fig.tight_layout()
+
+        # 4) Return the Kivy canvas wrapping the Figure
+        return FigureCanvasKivyAgg(graph.fig)
         
 
 class Vitals:
@@ -120,3 +134,4 @@ Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
 Vitals.alert_boundary(Vitals1)
 Vitals.alert_boundary(Vitals2)
 Vitals.alert_boundary(Vitals3)
+
