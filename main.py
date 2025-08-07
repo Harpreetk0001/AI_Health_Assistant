@@ -3,6 +3,7 @@
 #import files for front-end
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
 from kivy.metrics import dp
 from kivy.core.window import Window
@@ -33,8 +34,8 @@ app.include_router(suggestion.router, prefix="/suggestions", tags=["Suggestions"
 app.include_router(ui_preference.router, prefix="/ui_preferences", tags=["UI Preferences"])
 
 #import dev
-import HealthMonitoringCore.py
-import ToDoList.py
+import HealthMonitoringCore.py as HealthMonitoring
+import ToDoList.py as ToDoList
 
 #import ai models
 import anomalydetection.py
@@ -53,6 +54,9 @@ import chatbot.py
         #load data from backend to front end
         #load core functionality
 
+#import the health screen
+class HealthScreen(Screen):
+    
 class MyApp(App):
     def build(self):
         return RootWidget()
