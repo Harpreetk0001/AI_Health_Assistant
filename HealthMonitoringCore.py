@@ -19,16 +19,6 @@ class HealthGraph:
     def add_line(self, x_data, y_data, label=None, color=None, linestyle='-'):
         self.ax.plot(x_data, y_data, label=label, color=color, linestyle=linestyle)
 
-    def show(self, legend=True, grid=True):
-        self.ax.set_title(self.title)
-        self.ax.set_xlabel(self.x_label)
-        self.ax.set_ylabel(self.y_label)
-        if legend:
-            self.ax.legend()
-        if grid:
-            self.ax.grid(True)
-        plt.show()
-
     def showVitals():
         graph = HealthGraph(title="Health Analytics", x_label="Days", y_label="Vitals")
 
@@ -39,7 +29,7 @@ class HealthGraph:
         graph.add_line(TimeStamps, VitalsMatrix[4], label="Diastolic BP (mmHg)", color="brown")
         graph.add_line(TimeStamps, VitalsMatrix[5], label="Steps", color="purple", linestyle='--')
         
-        graph.show()
+        return FigureCanvasKivyAgg(graph)
         
 
 class Vitals:
@@ -130,6 +120,3 @@ Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
 Vitals.alert_boundary(Vitals1)
 Vitals.alert_boundary(Vitals2)
 Vitals.alert_boundary(Vitals3)
-
-#display graph
-HealthGraph.showVitals()
