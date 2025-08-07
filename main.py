@@ -10,7 +10,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.metrics import dp
 from kivy.core.window import Window
 import os, sys
-import Front-End.py
+import Updated_medbuddy.py as FrontEnd
 
 #import files from backend
 from fastapi import FastAPI
