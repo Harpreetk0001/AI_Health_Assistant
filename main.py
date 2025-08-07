@@ -10,39 +10,11 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.metrics import dp
 from kivy.core.window import Window
 import os, sys
-import Updated_medbuddy.py as FrontEnd
-
-#import files from backend
-from fastapi import FastAPI
-from app.api.endpoints import(
-    user, activity_log, conversation_log, device_integration, emergency_contact,
-    fall_event, health, health_vital, medication, mental_health_log, reminder_log,
-    suggestion, ui_preference,
-)
-
-app = FastAPI(title="AI Health Assistant API")
-
-app.include_router(user.router, prefix="/users", tags=["Users"])
-app.include_router(activity_log.router, prefix="/activity_logs", tags=["Activity Logs"])
-app.include_router(conversation_log.router, prefix="/conversation_logs", tags=["Conversation Logs"])
-app.include_router(device_integration.router, prefix="/device_integrations", tags=["Device Integrations"])
-app.include_router(emergency_contact.router, prefix="/emergency_contacts", tags=["Emergency Contacts"])
-app.include_router(fall_event.router, prefix="/fall_events", tags=["Fall Events"])
-app.include_router(health.router, prefix="/health_data", tags=["Health Data"])
-app.include_router(health_vital.router, prefix="/health_vitals", tags=["Health Vitals"])
-app.include_router(medication.router, prefix="/medications", tags=["Medications"])
-app.include_router(mental_health_log.router, prefix="/mental_health_logs", tags=["Mental Health Logs"])
-app.include_router(reminder_log.router, prefix="/reminder_logs", tags=["Reminder Logs"])
-app.include_router(suggestion.router, prefix="/suggestions", tags=["Suggestions"])
-app.include_router(ui_preference.router, prefix="/ui_preferences", tags=["UI Preferences"])
+import Updated_medbuddy
 
 #import dev
-import HealthMonitoringCore.py as HealthMonitoring
-import ToDoList.py as ToDoList
-
-#import ai models
-import anomalydetection.py as AnomalyDetection
-import chatbot.py as ChatBot
+import HealthMonitoringCore
+import ToDoList
 
 #define variables with data
 
@@ -57,28 +29,37 @@ import chatbot.py as ChatBot
         #load data from backend to front end
         #load core functionality
 
+
+class HomeScreen(Screen): pass
+
 #import the health screen
 class HealthScreen(Screen):
     def on_enter(self, *args):
-        # get the container by its KV id
-        container = self.ids.vitals_graph_container
-        container.clear_widgets()
-
-        # get the Matplotlib Figure from your backend
-        fig = HealthGraph.showVitals()
-
-        # wrap it in a Kivy widget
-        canvas_widget = FigureCanvasKivyAgg(fig)
-
-        # add to the container
-        container.add_widget(canvas_widget) 
+        self.ids.vitals_graph_container.clear_widgets()
+        self.ids.vitals_graph_container.add_widget(HealthMonitoringCore.showVitals())
     
 class MedBuddyApp(App):
     def build(self):
-        self.sm = ScreenManager()
-        self.sm.add_widget(HealthScreen(name="health"))
-        # … add other screens …
+        self.title = "MedBuddy"
+        # Make an emoji font available to KV
+        self.emoji_font = find_emoji_font()
+        self.sm = Builder.load_string(KV)
         return self.sm
 
+    # Simple stub to show input flow on Chatbot
+    def fake_send(self, user_input):
+        txt = user_input.text.strip()
+        if not txt:
+            return
+        user_input.text = ""
+        self.sm.current = "chat"
+
+class RoutineScreen(Screen): pass
+class ChatbotScreen(Screen): pass
+class SupportScreen(Screen): pass
+class ProfileScreen(Screen): pass
+class SettingsScreen(Screen): pass
+class SOSConfirmScreen(Screen): pass
+
 if __name__ == "__main__":
-    MyApp().run()
+    MedBuddyApp().run()
