@@ -388,7 +388,7 @@ KV = """
                 spacing: dp(8)
                 Label:
                     id: response_label
-                    text: "Hello John, how can I help you today?"
+                    text: "Hello Harry, how can I help you today?"
                     color: 0.12,0.12,0.15,1
                     size_hint_y: None
                     height: self.texture_size[1] + dp(6)
@@ -704,4 +704,5 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
