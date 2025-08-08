@@ -7,6 +7,10 @@ import os, sys
 import chatbot  # chatbot.py file
 from threading import Thread
 from kivy.clock import Clock
+from anomalydetection import run_fall_detection # anomalydetection.py file
+from datetime import datetime
+from kivy.properties import StringProperty
+import time
 
 # App-wide background color (DBE4E0)
 Window.clearcolor = (219/255, 228/255, 224/255, 1)
@@ -617,11 +621,13 @@ KV = """
                     size: self.size
                     radius: [dp(16), dp(16), dp(16), dp(16)]
             Label:
+                id: help_label
                 text: "HELP"
                 font_size: "64sp"
                 color: 0.9,0.1,0.1,1
                 bold: True
             Label:
+               id: sos_log_label
                 text: "Confirm call?"
                 font_size: "20sp"
                 color: 0.2,0.2,0.25,1
@@ -637,6 +643,22 @@ KV = """
                     text: "No"
                     background_color: 0.65, 0.12, 0.18, 1
                     on_release: app.sm.current = "home"
+ 
+                       
+
+           ScrollView:
+               size_hint_y: 1
+               do_scroll_x: False
+
+               Label:
+                   id: sos_log_label
+                   text: root.log_text
+                   size_hint_y: None
+                   height: self.texture_size[1]
+                   text_size: self.width, None
+                   valign: "top"
+                   padding: dp(10), dp(10)
+        
 
         Widget:
 
@@ -661,9 +683,35 @@ class ChatbotScreen(Screen): pass
 class SupportScreen(Screen): pass
 class ProfileScreen(Screen): pass
 class SettingsScreen(Screen): pass
-class SOSConfirmScreen(Screen): pass
+class SOSConfirmScreen(Screen): 
+class SOSConfirmScreen(Screen):
+    
+    log_text = StringProperty("")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.last_log_time = 0
+        self.log_cooldown = 10  # seconds
+
+    def update_log(self, message):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        new_entry = f"[{timestamp}] {message}"  # define new_entry
+        max_entries = 10
+        entries = self.log_text.strip().split('\n') if self.log_text.strip() else []
+        entries.append(new_entry)
+        if len(entries) > max_entries:
+            entries = entries[-max_entries:]
+        self.log_text = '\n'.join(entries) + '\n'
 
 class MedBuddyApp(App):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.alert_count = 0
+        self.max_alerts = 5
+        self.last_log_time = 0
+        self.log_cooldown = 10  # seconds
+
     def build(self):
         self.title = "MedBuddy"
         # Make an emoji font available to KV
@@ -673,7 +721,41 @@ class MedBuddyApp(App):
          # Initialize chatbot here
         chatbot.initialize()
 
+        # Start fall detection thread on app start:
+        self.check_fall_and_log()
+        Clock.schedule_interval(lambda dt: self.check_fall_and_log(), 30)  # every 30 seconds
+
         return self.sm
+
+    #Anomalydetection.py
+
+    def check_fall_and_log(self):
+        # Run fall detection in a separate thread to avoid blocking UI
+        def detection_thread():
+            if self.alert_count >= self.max_alerts:
+                return  # stop detection after max alerts
+            result = run_fall_detection()
+            if result:
+                self.alert_count += 1
+            Clock.schedule_once(lambda dt: self._update_sos_log(result))
+        Thread(target=detection_thread, daemon=True).start()
+    
+
+    def _update_sos_log(self, result):
+        current_time = time.time()
+        if current_time - self.last_log_time < self.log_cooldown:
+            return
+        self.last_log_time = current_time
+
+        sos_screen = self.sm.get_screen("sos")
+        if result:
+            sos_screen.update_log(f"ALERT: {result}")
+             # self.sm.current = "sos"
+        else:
+            sos_screen.update_log("No fall detected.")
+        
+            #  switch to SOS screen if you want user to see it immediately:
+            #self.sm.current = "sos"
 
     # Simple stub to show input flow on Chatbot
    def fake_send(self, user_input_widget):
@@ -704,5 +786,6 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
