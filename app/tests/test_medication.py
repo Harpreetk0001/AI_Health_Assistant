@@ -1,13 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-
 client = TestClient(app)
-
 @pytest.fixture
 def sample_medication():
     return {
-        "user_id": "test-user-uuid",  # Replace with actual UUID
+        "user_id": "test-user-uuid",
         "medication_name": "Aspirin",
         "dosage": "100mg",
         "frequency": "Once daily",
@@ -15,7 +13,6 @@ def sample_medication():
         "end_date": "2025-08-10",
         "notes": "Take after breakfast"
     }
-
 def test_create_medication(sample_medication):
     response = client.post("/medications/", json=sample_medication)
     assert response.status_code in [201, 422]
@@ -23,8 +20,7 @@ def test_create_medication(sample_medication):
         data = response.json()
         assert "id" in data
         assert data["medication_name"] == sample_medication["medication_name"]
-
 def test_get_medication():
-    medication_id = "test-medication-uuid"  # Replace with valid UUID
+    medication_id = "test-medication-uuid"
     response = client.get(f"/medications/{medication_id}")
     assert response.status_code in [200, 404]
