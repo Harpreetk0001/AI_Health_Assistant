@@ -5,7 +5,7 @@ client = TestClient(app)
 @pytest.fixture
 def sample_fall_event():
     return {
-        "user_id": "test-user-uuid",  # Replace with a valid UUID for integration test
+        "user_id": "test-user-uuid",
         "fall_detected": True,
         "fall_time": "2025-08-05T14:30:00Z",
         "location": "Bathroom"
