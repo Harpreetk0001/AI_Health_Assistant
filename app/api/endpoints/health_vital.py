@@ -1,26 +1,46 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import crud, schemas
+from app.schemas.health_vital import HealthVitalBase, HealthVitalCreate, HealthVitalUpdate
+from app.crud.health_vital import (
+    create_health_vital,
+    get_health_vital,
+    update_health_vital,
+    delete_health_vital,
+)
 from app.db.database import get_db
-
-router = APIRouter()
-
-@router.post("/", response_model=schemas.HealthVital)
-def create_health_vital(vital: schemas.HealthVitalCreate, db: Session = Depends(get_db)):
-    return crud.create_health_vital(db=db, vital=vital)
-
-@router.get("/{vital_id}", response_model=schemas.HealthVital)
-def read_health_vital(vital_id: str, db: Session = Depends(get_db)):
-    db_vital = crud.get_health_vital(db, vital_id=vital_id)
-    if not db_vital:
-        raise HTTPException(status_code=404, detail="Health vital not found")
-    return db_vital
-
-@router.put("/{vital_id}", response_model=schemas.HealthVital)
-def update_health_vital(vital_id: str, vital: schemas.HealthVitalUpdate, db: Session = Depends(get_db)):
-    return crud.update_health_vital(db, vital_id, vital)
-
-@router.delete("/{vital_id}")
-def delete_health_vital(vital_id: str, db: Session = Depends(get_db)):
-    crud.delete_health_vital(db, vital_id)
+router = APIRouter(prefix="/health_vitals", tags=["Health Vitals"])
+@router.post("/", response_model=HealthVitalBase)
+def create_health_vital_endpoint(
+    hv: HealthVitalCreate,
+    db: Session = Depends(get_db)
+):
+    return create_health_vital(db=db, hv=hv)
+@router.get("/{hv_id}", response_model=HealthVitalBase)
+def read_health_vital(
+    hv_id: str,
+    db: Session = Depends(get_db)
+):
+    db_hv = get_health_vital(db, hv_id=hv_id)
+    if not db_hv:
+        raise HTTPException(status_code=404, detail="Health vital not found !!")
+    return db_hv
+@router.put("/{hv_id}", response_model=HealthVitalBase)
+def update_health_vital_endpoint(
+    hv_id: str,
+    hv: HealthVitalUpdate,
+    db: Session = Depends(get_db)
+):
+    db_hv = get_health_vital(db, hv_id=hv_id)
+    if not db_hv:
+        raise HTTPException(status_code=404, detail="Health vital not found !!")
+    return update_health_vital(db=db, db_hv=db_hv, hv=hv)
+@router.delete("/{hv_id}")
+def delete_health_vital_endpoint(
+    hv_id: str,
+    db: Session = Depends(get_db)
+):
+    db_hv = get_health_vital(db, hv_id=hv_id)
+    if not db_hv:
+        raise HTTPException(status_code=404, detail="Health vital not found !!")
+    delete_health_vital(db=db, db_hv=db_hv)
     return {"ok": True}
