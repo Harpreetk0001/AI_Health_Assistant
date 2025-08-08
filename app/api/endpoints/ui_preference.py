@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.db.database import get_db
+# Import Pydantic models for UI preference data validation and responses
 from app.schemas.ui_preference import (
-    UIPreferenceCreate,
-    UIPreferenceUpdate,
-    UIPreferenceResponse,
+    UIPreferenceCreate,    # Model for creating a new UI preference
+    UIPreferenceUpdate,    # Model for updating an existing UI preference
+    UIPreferenceResponse,  # Model used to return UI preference data in responses
 )
 from app.crud import ui_preference as crud
 router = APIRouter(
@@ -13,8 +14,8 @@ router = APIRouter(
 )
 @router.post("/", response_model=UIPreferenceResponse)
 def create_ui_preference_endpoint(
-    preference_data: UIPreferenceCreate,
-    db: Session = Depends(get_db)
+    preference_data: UIPreferenceCreate,  # Data sent by client to create a preference
+    db: Session = Depends(get_db)         # Inject database session automatically
 ):
     return crud.create_ui_preference(db=db, preference=preference_data)
 @router.get("/{ui_preference_id}", response_model=UIPreferenceResponse)
@@ -28,8 +29,8 @@ def read_ui_preference(
     return db_pref
 @router.get("/", response_model=list[UIPreferenceResponse])
 def read_ui_preferences(
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = 0,        # How many records to skip (for paging)
+    limit: int = 100,     # Maximum number of records to return
     db: Session = Depends(get_db)
 ):
     return crud.get_ui_preferences(db, skip=skip, limit=limit)
