@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException # Import FastAPI tools: APIRouter for grouping endpoints, Depends for dependency injection, and HTTPException for errors
 from sqlalchemy.orm import Session
 from uuid import UUID
 from typing import List
@@ -19,28 +19,28 @@ router = APIRouter(
     prefix="/emergency_contacts",
     tags=["Emergency Contacts"]
 )
-@router.post("/", response_model=EmergencyContactBase)
+@router.post("/", response_model=EmergencyContactBase) # Endpoint: Add a new emergency contact
 def create(contact: EmergencyContactCreate, db: Session = Depends(get_db)):
     db_contact = create_emergency_contact(db=db, contact=contact)
-    return db_contact
-@router.get("/", response_model=List[EmergencyContactBase])
+    return db_contact  # Return the newly created contact
+@router.get("/", response_model=List[EmergencyContactBase]) # Endpoint: Get a list of all emergency contacts
 def read_all(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_emergency_contacts(db=db, skip=skip, limit=limit)
-@router.get("/{contact_id}", response_model=EmergencyContactBase)
+@router.get("/{contact_id}", response_model=EmergencyContactBase) # Endpoint: Get a single emergency contact by ID
 def read(contact_id: UUID, db: Session = Depends(get_db)):
     contact = get_emergency_contact(db=db, contact_id=str(contact_id))
     if not contact:
         raise HTTPException(status_code=404, detail="Emergency contact not found !!")
     return contact
-@router.put("/{contact_id}", response_model=EmergencyContactBase)
+@router.put("/{contact_id}", response_model=EmergencyContactBase) # Endpoint: Update an existing emergency contact
 def update(contact_id: UUID, updates: EmergencyContactUpdate, db: Session = Depends(get_db)):
     updated_contact = update_emergency_contact(db=db, contact_id=str(contact_id), updates=updates)
     if not updated_contact:
         raise HTTPException(status_code=404, detail="Emergency contact not found !!")
     return updated_contact
-@router.delete("/{contact_id}")
+@router.delete("/{contact_id}") # Endpoint: Delete an emergency contact by ID
 def delete(contact_id: UUID, db: Session = Depends(get_db)):
     success = delete_emergency_contact(db=db, contact_id=str(contact_id))
     if not success:
         raise HTTPException(status_code=404, detail="Emergency contact not found !!")
-    return {"ok": True}
+    return {"ok": True}  # Return confirmation of deletion
