@@ -2,10 +2,26 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from datetime import datetime
-import folium
 import requests
 
-#Send to fall_event.py FastAPI
+# Setup Pose detection
+mp_pose = mp.solutions.pose
+
+# Constants
+FALL_ANGLE_THRESHOLD = 90  # Typical angle threshold for fall detection
+FALL_ANGLE_FRAMES = 10     # Number of consecutive frames to confirm fall
+POSE_CONFIDENCE_THRESHOLD = 0.6  # Minimum average landmark confidence
+
+# Function to calculate the angle between three points (a, b, c)
+def calculate_angle(a, b, c):
+    a, b, c = np.array(a), np.array(b), np.array(c)
+    ba = a - b
+    bc = c - b
+    cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-6)
+    angle = np.degrees(np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
+    return angle
+
+# Send fall event to your FastAPI backend
 def send_fall_event_to_api(latitude, longitude, timestamp, severity=0.9):
     payload = {
         "latitude": latitude,
@@ -14,167 +30,98 @@ def send_fall_event_to_api(latitude, longitude, timestamp, severity=0.9):
         "event_type": "fall",
         "severity": severity
     }
-
     try:
         response = requests.post("http://localhost:8000/fall_event/", json=payload)
         if response.status_code == 200:
-            print("  Fall event sent to API successfully.")
+            print("Fall event sent to API successfully.")
         else:
-            print("  Failed to send fall event:", response.status_code, response.text)
+            print("Failed to send fall event:", response.status_code, response.text)
     except Exception as e:
-        print("  Error sending fall event:", e)
-        
-# Setup Pose detection
-mp_drawing = mp.solutions.drawing_utils
-mp_pose = mp.solutions.pose
+        print("Error sending fall event:", e)
 
-# Constants
-FALL_ANGLE_THRESHOLD = 100 
-FALL_ANGLE_FRAMES = 10    #must stay in 10 frames 
-POSE_CONFIDENCE_THRESHOLD = 0.6     #pose landmarks 
-MAX_FALLBACK_FRAMES = 60        
-COOLDOWN_SECONDS = 30        #avoiding repeated alerts
-
-#Used Apple watch simulated detection 
-ALTITUDE_DROP_THRESHOLD = 15  # meters - potential fall
-NO_MOVEMENT_DURATION = 60     # seconds
-HEART_RATE_THRESHOLD = 100    # bpm - not moving
-STEP_THRESHOLD = 0        # not moving
-
-# Calculate angle Function  Sholder, kneww, hipp points 
-def calculate_angle(a, b, c):        #middle point angle 'b' to see if a person is bent or collapsed posture
-    a, b, c = np.array(a), np.array(b), np.array(c)
-    ba, bc = a - b, c - b
-    cosine_angle = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-6)
-    return np.degrees(np.arccos(np.clip(cosine_angle, -1.0, 1.0)))
-
-# Simulate Apple Watch data static for this point as we don't have real-time yet
+# Simulated GPS data (replace with actual device GPS input if available)
 def get_watch_data():
     now = datetime.now()
     return {
         "timestamp": now.isoformat(),
         "lat": -33.865143,
         "lon": 151.209900,
-        "altitude": 50,
-        "prev_altitude": 70,
-        "steps": 0,
-        "heart_rate": 110,
-        "blood_pressure": 120,
-        "hydration": 2,
-        "sleep": 8
     }
 
-# Apple Watch-based fallback detection - If all (sudden altitude drop, no movement and heart rate above 100) are true it assumes fall has occured
-def detect_fall_from_watch(data):
-    t2 = datetime.fromisoformat(data["timestamp"])
-    alt_drop = data["prev_altitude"] - data["altitude"]
-    no_steps = data["steps"] <= STEP_THRESHOLD
-    high_hr = data["heart_rate"] >= HEART_RATE_THRESHOLD
-    if alt_drop >= ALTITUDE_DROP_THRESHOLD and no_steps and high_hr:
-        return True, (data["lat"], data["lon"]), data["timestamp"]
-    return False, None, None
+def run_fall_detection():
+    """
+    Runs fall detection on the webcam feed and returns a message when a fall is detected.
+    """
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Error: Could not open camera.")
+        return None
 
-# Start camera
-cap = cv2.VideoCapture(0)
-print(" Fall detection started. Press 'q' to quit.")
+    print("Fall detection started. Press 'q' to quit.")
 
-with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
-    low_angle_counter = 0
-    fallback_low_conf_counter = 0
-    fall_detected = False
-    fall_location = None
-    last_fall_time = None
-    last_alert_time = None
+    with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+        low_angle_counter = 0
+        fall_detected = False
+        last_fall_time = None
 
-    while cap.isOpened(): #frame by frame analysis
-        ret, frame = cap.read() #reading a frame
-        if not ret:
-            break
-
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #convert to RGB for MediaPipline
-        results = pose.process(frame_rgb)
-
-        # No person detected - skip
-        if not results.pose_landmarks:
-            fallback_low_conf_counter += 1
-            if fallback_low_conf_counter >= FALL_ANGLE_FRAMES:
-                watch_data = get_watch_data()
-                detected, location, timestamp = detect_fall_from_watch(watch_data)
-                if detected:
-                    fall_detected = True
-                    last_fall_time = datetime.fromisoformat(timestamp)
-                    fall_location = location
-                fallback_low_conf_counter = 0
-            cv2.imshow("Fall Detection", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                print("Failed to read frame from camera")
                 break
-            continue
 
-        fallback_low_conf_counter = 0  # reset
+            # Show the camera frame
+            #cv2.imshow('Fall Detection', frame)
 
-        # Extract landmarks When person is detected:
-        lm = results.pose_landmarks.landmark
-        l_shoulder = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
-                      lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-        l_hip = [lm[mp_pose.PoseLandmark.LEFT_HIP.value].x,
-                 lm[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-        l_knee = [lm[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
-                  lm[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+            # Convert to RGB for Mediapipe
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = pose.process(frame_rgb)
 
-        visibilities = [lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].visibility,
-                        lm[mp_pose.PoseLandmark.LEFT_HIP.value].visibility,
-                        lm[mp_pose.PoseLandmark.LEFT_KNEE.value].visibility]
-        avg_vis = sum(visibilities) / 3         #check visibility (confidence if pose detection)
+            if results.pose_landmarks:
+                landmarks = results.pose_landmarks.landmark
 
-        if avg_vis > POSE_CONFIDENCE_THRESHOLD:
-            angle = calculate_angle(l_shoulder, l_hip, l_knee)
-            if angle < FALL_ANGLE_THRESHOLD:        #detect low angle lying down
-                low_angle_counter += 1
-                if low_angle_counter >= FALL_ANGLE_FRAMES:
-                    now = datetime.now()
-                    if not last_alert_time or (now - last_alert_time).total_seconds() > COOLDOWN_SECONDS:
-                        fall_detected = True
-                        last_fall_time = now
-                        fall_location = get_watch_data()["lat"], get_watch_data()["lon"]
-                        last_alert_time = now
+                # Extract left shoulder, hip, and knee (x,y)
+                l_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,
+                              landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
+                l_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,
+                         landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
+                l_knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,
+                          landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
+
+                # Average visibility confidence of key landmarks
+                avg_vis = (landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].visibility +
+                           landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].visibility +
+                           landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].visibility) / 3
+
+                if avg_vis > POSE_CONFIDENCE_THRESHOLD:
+                    angle = calculate_angle(l_shoulder, l_hip, l_knee)
+                    # Debug print
+                    print(f"DEBUG: Angle={angle:.2f}, Counter={low_angle_counter}")
+
+                    if angle < FALL_ANGLE_THRESHOLD:
+                        low_angle_counter += 1
+                        if low_angle_counter >= FALL_ANGLE_FRAMES:
+                            fall_detected = True
+                            last_fall_time = datetime.now()
+                    else:
+                        low_angle_counter = 0
+                else:
+                    low_angle_counter = 0
             else:
                 low_angle_counter = 0
 
-        # Draw pose landmarks
-        mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            # If fall detected, send API event and return message
+            if fall_detected:
+                data = get_watch_data()
+                send_fall_event_to_api(data["lat"], data["lon"], last_fall_time.isoformat())
+                cap.release()
+                cv2.destroyAllWindows()
+                return f"Fall detected at {last_fall_time.strftime('%H:%M:%S')}!"
 
-        # If fall detected
-        if fall_detected:
-            cv2.putText(frame, f"FALL DETECTED at {last_fall_time.strftime('%H:%M:%S')}",
-                        (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (0, 0, 255), 3)
+            # Break loop if user presses 'q'
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
-            # Save map
-            fmap = folium.Map(location=fall_location, zoom_start=18)
-            folium.Marker(
-                fall_location,
-                popup=f"Fall at {last_fall_time.strftime('%H:%M:%S')}",
-                icon=folium.Icon(color="red", icon="info-sign")
-            ).add_to(fmap)
-            fmap.save("fall_map.html")
-            print("️ Fall saved to fall_map.html")
-
-            # Send event to backend API
-            send_fall_event_to_api(
-            latitude=fall_location[0],
-            longitude=fall_location[1],
-            timestamp=last_fall_time.isoformat()
-            )
-
-            fall_detected = False
-
-        # Display Webcam with Pose and Alerts
-        cv2.imshow("Fall Detection", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-print(" Exiting fall detection.")
-cap.release()     #exit 
-cv2.destroyAllWindows()
-
-
-
+    cap.release()
+    cv2.destroyAllWindows()
+    return None  # No fall detected
