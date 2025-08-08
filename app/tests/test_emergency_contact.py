@@ -5,7 +5,7 @@ client = TestClient(app)
 @pytest.fixture
 def sample_emergency_contact():
     return {
-        "user_id": "test-user-uuid",  # Replace with actual UUID for real test
+        "user_id": "test-user-uuid",
         "name": "John Doe",
         "relationship": "Brother",
         "phone_number": "+61123456789",
