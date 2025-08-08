@@ -684,7 +684,6 @@ class SupportScreen(Screen): pass
 class ProfileScreen(Screen): pass
 class SettingsScreen(Screen): pass
 class SOSConfirmScreen(Screen): 
-class SOSConfirmScreen(Screen):
     
     log_text = StringProperty("")
 
@@ -786,6 +785,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
