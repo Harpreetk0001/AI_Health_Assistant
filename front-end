@@ -643,10 +643,19 @@ KV = """
                     text: "No"
                     background_color: 0.65, 0.12, 0.18, 1
                     on_release: app.sm.current = "home"
- 
-                       
 
-           ScrollView:
+    ScrollView:   
+            size_hint_y: 1
+            do_scroll_x: False
+
+            Label:
+                id: sos_log_label_2   # changed to sos_log_label_2 to avoid duplicate id
+                text: root.log_text
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+                valign: "top"
+                padding: dp(10), dp(10)
                size_hint_y: 1
                do_scroll_x: False
 
@@ -785,6 +794,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
