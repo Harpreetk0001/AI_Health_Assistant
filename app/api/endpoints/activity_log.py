@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
-
+from typing import List
 from app.db.session import get_db
 from app.crud import activity_log as crud
 from app.schemas.activity_log import (
@@ -9,27 +9,23 @@ from app.schemas.activity_log import (
     ActivityLogUpdate,
     ActivityLog
 )
-
 router = APIRouter(
     prefix="/activity_logs",
     tags=["Activity Logs"]
 )
-
 @router.post("/", response_model=ActivityLog)
 def create_activity(
     activity: ActivityLogCreate,
     db: Session = Depends(get_db)
 ):
     return crud.create_activity(db=db, activity=activity)
-
-@router.get("/", response_model=list[ActivityLog])
+@router.get("/", response_model=List[ActivityLog])
 def read_activities(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
 ):
     return crud.get_activities(db=db, skip=skip, limit=limit)
-
 @router.get("/{activity_id}", response_model=ActivityLog)
 def read_activity(
     activity_id: UUID,
@@ -39,7 +35,6 @@ def read_activity(
     if not db_activity:
         raise HTTPException(status_code=404, detail="Activity not found")
     return db_activity
-
 @router.put("/{activity_id}", response_model=ActivityLog)
 def update_activity(
     activity_id: UUID,
@@ -50,7 +45,6 @@ def update_activity(
     if not updated_activity:
         raise HTTPException(status_code=404, detail="Activity not found")
     return updated_activity
-
 @router.delete("/{activity_id}")
 def delete_activity(
     activity_id: UUID,
