@@ -66,11 +66,16 @@ class ToDoList:
             print()
 
     def displayByTag(self, selectedTag):
-        print("FILTERED LIST\n")
+        #print("FILTERED LIST\n")
+
+        filteredList = []
+        
         for f in self.tasks:
             if f.tag == selectedTag:
-                Task.getTask(f)
-                print()
+                filteredList.append(f)
+                #Task.getTask(f)
+
+        return filteredList
         
 class Task:
     def __init__(self, dueDateTime, title, description, tag, status):
@@ -84,11 +89,11 @@ class Task:
 
         dueDateTimeStr = self.dueDateTime.strftime("%Y-%m-%d %H:%M")
         
-        print("Task name: " + self.title
-              + "\nDescription: " + self.description
-              + "\nTag: " + self.tag
-              + "\nDue date and time: " + dueDateTimeStr
-              + "\nStatus: " + self.status)
+        task_str = f"Task name: {self.title} \nDescription: {self.description} \nTag: {self.tag} \nDue date and time: {dueDateTimeStr} \nStatus: {self.status}"
+
+        #print(task_str)
+
+        return task_str
             
 
 ##TESTING##
@@ -125,11 +130,3 @@ TDL.displayIncompleteList()
 TDL.displayList()
 TDL.displayCompleteList()
 TDL.displayIncompleteList()
-
-#test with filters
-print("WITH FILTER - MEDICATION")
-TDL.displayByTag("Medication")
-
-print("WITH FILTER - SLEEP")
-TDL.displayByTag("Sleep")
-    
