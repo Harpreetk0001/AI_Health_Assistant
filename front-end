@@ -757,7 +757,7 @@ class MedBuddyApp(App):
             #self.sm.current = "sos"
 
     # Simple stub to show input flow on Chatbot
-   def fake_send(self, user_input_widget):
+    def fake_send(self, user_input_widget):
         user_text = user_input_widget.text.strip()
         if not user_text:
             self.update_label("Please type something.")
@@ -785,6 +785,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
