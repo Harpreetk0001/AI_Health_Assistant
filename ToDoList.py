@@ -121,9 +121,6 @@ TDL.displayList()
 TDL.displayCompleteList()
 TDL.displayIncompleteList()
 
-#remove task
-TDL.removeTask(t2)
-
 #display modified lists with removed items
 TDL.displayList()
 TDL.displayCompleteList()
