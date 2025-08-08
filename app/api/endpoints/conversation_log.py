@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException # Import FastAPI tools for creating routes, handling dependencies, and raising errors
 from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
@@ -11,7 +11,7 @@ def create_conversation(
     conversation: schemas.ConversationLogCreate,
     db: Session = Depends(get_db)
 ):
-    return crud.create_conversation(db=db, convo=conversation)
+    return crud.create_conversation(db=db, convo=conversation) # Call the CRUD function to save the conversation in the database
 @router.get("/", response_model=List[schemas.ConversationLogBase])
 def read_conversations(
     skip: int = 0,
@@ -27,23 +27,24 @@ def read_conversation(
     db_conversation = crud.get_conversation(db, convo_id=str(conversation_id))  # To convert UUID to str
     if not db_conversation:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    return db_conversation
+    return db_conversation # Return the found conversation
 @router.put("/{conversation_id}", response_model=schemas.ConversationLogBase)
 def update_conversation(
     conversation_id: UUID,
     conversation: schemas.ConversationLogUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db) # Get a database session
 ):
     updated_convo = crud.update_conversation(db, convo_id=str(conversation_id), updates=conversation)  # To convert UUID to str
     if not updated_convo:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    return updated_convo
+    return updated_convo  # Return the updated conversation
 @router.delete("/{conversation_id}")
 def delete_conversation(
     conversation_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db) # Get a database session
 ):
     deleted_convo = crud.delete_conversation(db, convo_id=str(conversation_id))  # To convert UUID to str
+    # If the conversation doesn't exist, return a 404 error
     if not deleted_convo:
         raise HTTPException(status_code=404, detail="Conversation not found")
     return {"ok": True}
