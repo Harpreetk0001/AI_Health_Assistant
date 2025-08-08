@@ -1,28 +1,23 @@
 from pydantic import BaseModel
 from uuid import UUID
 from datetime import datetime
-
+from typing import Optional
 class MedicationBase(BaseModel):
-    user_id: UUID
     name: str
     dosage: str
-    frequency: str
-
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    instructions: Optional[str] = None
 class MedicationCreate(MedicationBase):
-    start_date: datetime
-    end_date: datetime
-
+    pass
 class MedicationUpdate(BaseModel):
-    name: str
-    dosage: str
-    frequency: str
-    start_date: datetime
-    end_date: datetime
-
-class MedicationResponse(MedicationBase):
+    name: Optional[str] = None
+    dosage: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    instructions: Optional[str] = None
+class Medication(MedicationBase):
     id: UUID
-    start_date: datetime
-    end_date: datetime
-
+    user_id: UUID
     class Config:
         orm_mode = True
