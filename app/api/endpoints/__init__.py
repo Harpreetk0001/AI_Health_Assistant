@@ -10,8 +10,7 @@ from .reminder_log import router as reminder_log_router
 from .suggestion import router as suggestion_router
 from .ui_preference import router as ui_preference_router
 from .user import router as user_router
-
-# To collect all routers for use in main.py
+# To collect all the routers for use in main.py
 all_routers = [
     activity_log_router,
     conversation_log_router,
