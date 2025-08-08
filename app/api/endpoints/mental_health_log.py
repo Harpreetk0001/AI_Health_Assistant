@@ -1,17 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException # Import tools from FastAPI for creating routes, handling dependencies, and raising errors
+from sqlalchemy.orm import Session # Import Session from SQLAlchemy to talk to the database
+# Import Pydantic schemas for mental health logs 
 from app.schemas.mental_health_log import (
     MentalHealthLogBase,
     MentalHealthLogCreate,
     MentalHealthLogUpdate,
 )
+# Import database functions for mental health logs (CRUD = Create, Read, Update, Delete)
 from app.crud.mental_health_log import (
     create_mental_health_log,
     get_mental_health_log,
     update_mental_health_log,
     delete_mental_health_log,
 )
-from app.db.database import get_db
+from app.db.database import get_db # Import the function to get a database connection
 router = APIRouter(prefix="/mental-health-logs", tags=["Mental Health Logs"])
 @router.post("/", response_model=MentalHealthLogBase)
 def create_log_endpoint(
