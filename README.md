@@ -55,7 +55,6 @@ How to Run Backend Prototype:
   6.	Other: Logs and AI-assisted suggestions.
 
 **Project Structure**
-
 app/
 ├── main.py            # FastAPI application entrypoint
 ├── models/            # Database models as User, HealthVital etc.
