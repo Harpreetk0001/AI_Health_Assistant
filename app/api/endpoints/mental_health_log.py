@@ -1,26 +1,40 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app import crud, schemas
+from app.schemas.mental_health_log import (
+    MentalHealthLogBase,
+    MentalHealthLogCreate,
+    MentalHealthLogUpdate,
+)
+from app.crud.mental_health_log import (
+    create_mental_health_log,
+    get_mental_health_log,
+    update_mental_health_log,
+    delete_mental_health_log,
+)
 from app.db.database import get_db
-
-router = APIRouter()
-
-@router.post("/", response_model=schemas.MentalHealthLog)
-def create_mental_health_log(log: schemas.MentalHealthLogCreate, db: Session = Depends(get_db)):
-    return crud.create_mental_health_log(db=db, log=log)
-
-@router.get("/{log_id}", response_model=schemas.MentalHealthLog)
-def read_mental_health_log(log_id: str, db: Session = Depends(get_db)):
-    db_log = crud.get_mental_health_log(db, log_id=log_id)
+router = APIRouter(prefix="/mental-health-logs", tags=["Mental Health Logs"])
+@router.post("/", response_model=MentalHealthLogBase)
+def create_log_endpoint(
+    log_data: MentalHealthLogCreate, db: Session = Depends(get_db)
+):
+    return create_mental_health_log(db=db, log_data=log_data)
+@router.get("/{log_id}", response_model=MentalHealthLogBase)
+def read_log_endpoint(log_id: str, db: Session = Depends(get_db)):
+    db_log = get_mental_health_log(db=db, log_id=log_id)
     if not db_log:
-        raise HTTPException(status_code=404, detail="Mental health log not found")
+        raise HTTPException(status_code=404, detail="Mental health log not found !!")
     return db_log
-
-@router.put("/{log_id}", response_model=schemas.MentalHealthLog)
-def update_mental_health_log(log_id: str, log: schemas.MentalHealthLogUpdate, db: Session = Depends(get_db)):
-    return crud.update_mental_health_log(db, log_id, log)
-
+@router.put("/{log_id}", response_model=MentalHealthLogBase)
+def update_log_endpoint(
+    log_id: str, updates: MentalHealthLogUpdate, db: Session = Depends(get_db)
+):
+    updated_log = update_mental_health_log(db=db, log_id=log_id, updates=updates)
+    if updated_log is None:
+        raise HTTPException(status_code=404, detail="Mental health log not found !!")
+    return updated_log
 @router.delete("/{log_id}")
-def delete_mental_health_log(log_id: str, db: Session = Depends(get_db)):
-    crud.delete_mental_health_log(db, log_id)
+def delete_log_endpoint(log_id: str, db: Session = Depends(get_db)):
+    success = delete_mental_health_log(db=db, log_id=log_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Mental health log not found !!")
     return {"ok": True}
