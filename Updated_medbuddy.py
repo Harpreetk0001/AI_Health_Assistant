@@ -698,7 +698,10 @@ class MedBuddyApp(App):
          # add each task as a Label (or your custom widget)
          for task in self.todo.tasks:
              container.add_widget(
-                 Label(text=task.title, size_hint_y=None, height=dp(40))
+                 text=f"{task.title} \n{task.description} \nDue: {task.dueDateTime} \nStatus: {task.status}",
+                 color=(0, 0, 0, 1),
+                 size_hint_y=None,
+                 height=dp(75)
              )
 
      # Simple stub to show input flow on Chatbot
@@ -711,3 +714,4 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
