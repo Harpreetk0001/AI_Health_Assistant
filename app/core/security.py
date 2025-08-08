@@ -1,8 +1,8 @@
-from passlib.context import CryptContext
-from datetime import datetime, timedelta, timezone
-from jose import JWTError, jwt
-from typing import Optional
-from .config import settings
+from passlib.context import CryptContext # Import CryptContext to handle password hashing securely
+from datetime import datetime, timedelta, timezone # Import datetime tools to handle token expiry times
+from jose import JWTError, jwt # Import tools to create and verify JWT tokens
+from typing import Optional # Import Optional for typing when a value can be None
+from .config import settings # Import app settings like SECRET_KEY from your config file
 # Password hashing context using bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
@@ -18,12 +18,12 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM) # Encode the token with secret key and chosen algorithm
     return encoded_jwt
 def decode_access_token(token: str) -> Optional[dict]:
     """Decode and verify a JWT access token."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+        return payload # Return the decoded token data if successful
     except JWTError:
-        return None
+        return None # Return None if token is invalid or expired
