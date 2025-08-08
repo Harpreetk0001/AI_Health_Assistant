@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
-from app.db.database import get_db
-from app.schemas.suggestion import SuggestionCreate, SuggestionUpdate, SuggestionResponse
-from app.crud import suggestion as crud
+from fastapi import APIRouter, HTTPException, Depends # Import FastAPI tools for routing, error handling, and dependency injection
+from sqlalchemy.orm import Session # Import SQLAlchemy session for database interaction
+from app.db.database import get_db # Import function to get the database session from app's database module
+from app.schemas.suggestion import SuggestionCreate, SuggestionUpdate, SuggestionResponse # Import data models (schemas) for creating, updating, and responding with suggestions
+from app.crud import suggestion as crud # Import the suggestion-related database functions (CRUD operations)
 router = APIRouter(
     prefix="/suggestions",
     tags=["Suggestions"]
@@ -39,6 +39,7 @@ def update_suggestion_endpoint(
     if updated_suggestion is None:
         raise HTTPException(status_code=404, detail="Suggestion not found !!")
     return updated_suggestion
+# Define a route to delete a suggestion by ID (DELETE /suggestions/{suggestion_id})
 @router.delete("/{suggestion_id}", response_model=dict)
 def delete_suggestion_endpoint(
     suggestion_id: str,
