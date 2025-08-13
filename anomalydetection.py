@@ -25,7 +25,7 @@ def calculate_angle(a, b, c):
 def send_fall_event_to_api(latitude, longitude, timestamp, severity=0.9):
     payload = {
         "latitude": latitude,
-        "longitude": longitude,
+        "longitude": longitude, #Simulated by get_watch_data()
         "timestamp": timestamp,
         "event_type": "fall",
         "severity": severity
@@ -33,7 +33,7 @@ def send_fall_event_to_api(latitude, longitude, timestamp, severity=0.9):
     try:
         response = requests.post("http://localhost:8000/fall_event/", json=payload)
         if response.status_code == 200:
-            print("Fall event sent to API successfully.")
+            print("Fall event sent to API successfully.") 
         else:
             print("Failed to send fall event:", response.status_code, response.text)
     except Exception as e:
@@ -125,3 +125,4 @@ def run_fall_detection():
     cap.release()
     cv2.destroyAllWindows()
     return None  # No fall detected
+
