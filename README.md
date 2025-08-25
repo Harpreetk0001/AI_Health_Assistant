@@ -18,6 +18,43 @@ The backend API for MedBuddy, an AI-powered personal health assistant designed t
   5.	Medication Schedule: Track medication reminders.
   6.	Other: Logs and AI-assisted suggestions.
 
+**How to Run Backend Prototype:
+**
+1. Clone the repository
+  Bash script-
+   git clone https://github.com/yourusername/medbuddy-backend.git
+   cd medbuddy-backend
+
+2. Create and activate a virtual environment
+  Bash script -
+    python -m venv venv
+    source venv/bin/activate    # Linux/macOS
+    venv\Scripts\activate       # Windows
+
+3. Install dependencies:
+ Bash script -
+    pip install -r requirements.txt
+
+4. Configure environment variables:
+
+  Create a .env file in the project root with your PostgreSQL connection string and other settings:
+  Bash script -
+    DATABASE_URL=postgresql://user:password@localhost/medbuddydb
+
+5. Run database migrations:
+  Bash script -
+    alembic upgrade head
+
+6. Start the backend server:
+  Bash script -
+    uvicorn app.main:app --reload
+
+7. API Documentation
+  Open your browser and navigate to:
+  Bash script:
+    http://localhost:8000/docs
+
+
 **Project Structure**
 app/
 ├── main.py            # FastAPI application entrypoint
