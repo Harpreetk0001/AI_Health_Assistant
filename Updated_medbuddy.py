@@ -716,14 +716,30 @@ class SOSConfirmScreen(Screen):
         self.log_text = '\n'.join(entries) + '\n'
 
 class MedBuddyApp(App):
-     def build(self):
-         self.title = "MedBuddy"
-         # Make an emoji font available to KV
-         self.emoji_font = find_emoji_font()
-         self.sm = Builder.load_string(KV)
-         return self.sm
 
-     def on_start(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.alert_count = 0
+        self.max_alerts = 5
+        self.last_log_time = 0
+        self.log_cooldown = 10  # seconds
+
+    def build(self):
+        self.title = "MedBuddy"
+        # Make an emoji font available to KV
+        self.emoji_font = find_emoji_font()
+        self.sm = Builder.load_string(KV)
+
+         # Initialize chatbot here
+        chatbot.initialize()
+
+        # Start fall detection thread on app start:
+        self.check_fall_and_log()
+        Clock.schedule_interval(lambda dt: self.check_fall_and_log(), 30)  # every 30 seconds
+
+        return self.sm
+
+    def on_start(self):
          # 1) generate the FigureCanvas
          canvas = HealthGraph.showVitals()
          # 2) find the Health screen’s container and add it
@@ -733,7 +749,7 @@ class MedBuddyApp(App):
          # 3) (optional) set up your To-Do list
          self.init_todo_list()
 
-     def init_todo_list(self):
+    def init_todo_list(self):
          # instantiate the ToDoList
          self.todo = ToDoList()
          # get the Routine screen and its container
@@ -749,7 +765,7 @@ class MedBuddyApp(App):
              )
 
       #filtering to-do list
-      def on_toggle_pressed(self, toggle_button):
+    def on_toggle_pressed(self, toggle_button):
           # get the Routine screen and its container
           routine = self.sm.get_screen("routine")
           container = routine.ids.tasks_container
@@ -828,14 +844,7 @@ class MedBuddyApp(App):
                   )
               )
 
-         # Initialize chatbot here
-        chatbot.initialize()
 
-        # Start fall detection thread on app start:
-        self.check_fall_and_log()
-        Clock.schedule_interval(lambda dt: self.check_fall_and_log(), 30)  # every 30 seconds
-
-        return self.sm
 
     #Anomalydetection.py
 
@@ -896,6 +905,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
