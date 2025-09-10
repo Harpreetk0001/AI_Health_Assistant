@@ -788,16 +788,75 @@ class MedBuddyApp(App):
                   )
               )
 
-     # Simple stub to show input flow on Chatbot
-     def fake_send(self, user_input):
-         txt = user_input.text.strip()
-         if not txt:
-             return
-         user_input.text = ""
-         self.sm.current = "chat"
+         # Initialize chatbot here
+        chatbot.initialize()
+
+        # Start fall detection thread on app start:
+        self.check_fall_and_log()
+        Clock.schedule_interval(lambda dt: self.check_fall_and_log(), 30)  # every 30 seconds
+
+        return self.sm
+
+    #Anomalydetection.py
+
+    def check_fall_and_log(self):
+        # Run fall detection in a separate thread to avoid blocking UI
+        def detection_thread():
+            if self.alert_count >= self.max_alerts:
+                return  # stop detection after max alerts
+            result = run_fall_detection()
+            if result:
+                self.alert_count += 1
+            Clock.schedule_once(lambda dt: self._update_sos_log(result))
+        Thread(target=detection_thread, daemon=True).start()
+    
+
+    def _update_sos_log(self, result):
+        current_time = time.time()
+        if current_time - self.last_log_time < self.log_cooldown:
+            return
+        self.last_log_time = current_time
+
+        sos_screen = self.sm.get_screen("sos")
+        if result:
+            sos_screen.update_log(f"ALERT: {result}")
+             # self.sm.current = "sos"
+        else:
+            sos_screen.update_log("No fall detected.")
+        
+            #  switch to SOS screen if you want user to see it immediately:
+            #self.sm.current = "sos"
+
+    # Simple stub to show input flow on Chatbot
+    def fake_send(self, user_input_widget):
+        user_text = user_input_widget.text.strip()
+        if not user_text:
+            self.update_label("Please type something.")
+            return
+        user_input_widget.text = ""
+        Thread(target=self.process_interaction, args=(user_text,)).start()
+
+    def process_interaction(self, user_text):
+        print(f"Generating response for: {user_text!r}")
+        response = chatbot.generate_response(user_text)
+        print(f"Got response: {response!r}")
+        Clock.schedule_once(lambda dt: self.update_label(response), 0)
+        chatbot.speak_response(response)
+        
+
+    def update_label(self, text):
+        try:
+            screen = self.sm.get_screen("chat")
+            lbl = screen.ids.response_label
+            lbl.text = text
+            lbl.height = lbl.texture_size[1] + 10  # Add some padding
+            print(f"Updated label to: {text}")
+        except Exception as e:
+            print("Could not update response label:", e)
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
