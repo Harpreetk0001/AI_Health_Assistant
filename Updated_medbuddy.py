@@ -4,6 +4,13 @@ from kivy.uix.screenmanager import Screen
 from kivy.metrics import dp
 from kivy.core.window import Window
 import os, sys
+import chatbot  # chatbot.py file
+from threading import Thread
+from kivy.clock import Clock
+from anomalydetection import run_fall_detection # anomalydetection.py file
+from datetime import datetime
+from kivy.properties import StringProperty
+import time
 
 from HealthMonitoringCore import HealthGraph    # for the vitals graph
 from ToDoList import ToDoList                   # for the task manager
@@ -873,6 +880,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
