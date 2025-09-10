@@ -673,7 +673,24 @@ class ChatbotScreen(Screen): pass
 class SupportScreen(Screen): pass
 class ProfileScreen(Screen): pass
 class SettingsScreen(Screen): pass
-class SOSConfirmScreen(Screen): pass
+class SOSConfirmScreen(Screen): 
+    
+    log_text = StringProperty("")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.last_log_time = 0
+        self.log_cooldown = 10  # seconds
+
+    def update_log(self, message):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        new_entry = f"[{timestamp}] {message}"  # define new_entry
+        max_entries = 10
+        entries = self.log_text.strip().split('\n') if self.log_text.strip() else []
+        entries.append(new_entry)
+        if len(entries) > max_entries:
+            entries = entries[-max_entries:]
+        self.log_text = '\n'.join(entries) + '\n'
 
 class MedBuddyApp(App):
      def build(self):
@@ -856,6 +873,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
