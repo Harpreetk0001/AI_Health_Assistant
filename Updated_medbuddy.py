@@ -636,14 +636,16 @@ KV = """
                     size: self.size
                     radius: [dp(16), dp(16), dp(16), dp(16)]
             Label:
+                id: help_label
                 text: "HELP"
                 font_size: "64sp"
-                color: 0.9,0.1,0.1,1
+                color: 0.9, 0.1, 0.1, 1
                 bold: True
             Label:
+                id: sos_log_label
                 text: "Confirm call?"
                 font_size: "20sp"
-                color: 0.2,0.2,0.25,1
+                color: 0.2, 0.2, 0.25, 1
             BoxLayout:
                 size_hint_y: None
                 height: dp(56)
@@ -657,11 +659,25 @@ KV = """
                     background_color: 0.65, 0.12, 0.18, 1
                     on_release: app.sm.current = "home"
 
+        ScrollView:
+            size_hint_y: 1
+            do_scroll_x: False
+
+            Label:
+                id: sos_log_label_2
+                text: root.log_text
+                size_hint_y: None
+                height: self.texture_size[1]
+                text_size: self.width, None
+                valign: "top"
+                padding: dp(10), dp(10)
+
         Widget:
 
-        NavBar
+        NavBar:
 
 # Root
+
 ScreenManager:
     HomeScreen:
     HealthScreen:
@@ -880,6 +896,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
