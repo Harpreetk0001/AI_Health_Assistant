@@ -674,7 +674,7 @@ KV = """
 
         Widget:
 
-        NavBar:
+        NavBar
 
 # Root
 
@@ -750,99 +750,103 @@ class MedBuddyApp(App):
          self.init_todo_list()
 
     def init_todo_list(self):
-         # instantiate the ToDoList
-         self.todo = ToDoList()
-         # get the Routine screen and its container
-         routine = self.sm.get_screen("routine")
-         container = routine.ids.tasks_container
-         # add each task as a Label (or your custom widget)
-         for task in self.todo.tasks:
-             container.add_widget(
-                 text=f"{task.title} \n{task.description} \nDue: {task.dueDateTime} \nStatus: {task.status}",
-                 color=(0, 0, 0, 1),
-                 size_hint_y=None,
-                 height=dp(75)
-             )
+        # instantiate the ToDoList
+        self.todo = ToDoList()
+        # get the Routine screen and its container
+        routine = self.sm.get_screen("routine")
+        container = routine.ids.tasks_container
+        # add each task as a Label (or your custom widget)
+        for task in self.todo.tasks:
 
-      #filtering to-do list
+            label1 = Label(
+                text=f"{task.title} \n{task.description} \nDue: {task.dueDateTime} \nStatus: {task.status}",
+                color=(0, 0, 0, 1),
+                size_hint_y=None,
+                height=dp(75)
+            )
+            
+            container.add_widget(label1)
+
+
+    #filtering to-do list
     def on_toggle_pressed(self, toggle_button):
-          # get the Routine screen and its container
-          routine = self.sm.get_screen("routine")
-          container = routine.ids.tasks_container
+        # get the Routine screen and its container
+        routine = self.sm.get_screen("routine")
+        container = routine.ids.tasks_container
 
-          container.clear_widgets()
+        container.clear_widgets()
 
-          filterList = []
+        filterList = []
 
-          #for at in self.todo.tasks:
-              #filterList.append(at)
+        #for at in self.todo.tasks:
+            #filterList.append(at)
 
-          eList = self.todo.displayByTag("Exercise")
-          sList = self.todo.displayByTag("Sleep")
-          hList = self.todo.displayByTag("Hydration")
-          mList = self.todo.displayByTag("Medication")
-         
-          if "Exercise (ON)" in toggle_button.text:
-              print("EXERCISE BUTTON ON")
-              for et in eList:
-                  if et not in filterList:
-                      filterList.append(et)
+        eList = self.todo.displayByTag("Exercise")
+        sList = self.todo.displayByTag("Sleep")
+        hList = self.todo.displayByTag("Hydration")
+        mList = self.todo.displayByTag("Medication")
+        
+        if "Exercise (ON)" in toggle_button.text:
+            print("EXERCISE BUTTON ON")
+            for et in eList:
+                if et not in filterList:
+                    filterList.append(et)
                  
-          elif "Exercise (OFF)" in toggle_button.text:
-              print("EXERCISE BUTTON OFF")
-              for e_t in eList:
-                  if e_t in filterList:
-                      filterList.remove(e_t)
+        elif "Exercise (OFF)" in toggle_button.text:
+            print("EXERCISE BUTTON OFF")
+            for e_t in eList:
+                if e_t in filterList:
+                    filterList.remove(e_t)
                  
-          if "Sleep (ON)" in toggle_button.text:
-              print("SLEEP BUTTON ON")
-              for st in sList:
-                  if st not in filterList:
-                      filterList.append(st)
+        if "Sleep (ON)" in toggle_button.text:
+            print("SLEEP BUTTON ON")
+            for st in sList:
+                if st not in filterList:
+                    filterList.append(st)
                  
-          elif "Sleep (OFF)" in toggle_button.text:
-              print("SLEEP BUTTON OFF")
-              for s_t in sList:
-                  if s_t in filterList:
-                      filterList.remove(s_t)
+        elif "Sleep (OFF)" in toggle_button.text:
+            print("SLEEP BUTTON OFF")
+            for s_t in sList:
+                if s_t in filterList:
+                    filterList.remove(s_t)
                  
-          if "Hydration (ON)" in toggle_button.text:
-              print("HYDRATION BUTTON ON")
-              for ht in hList:
-                  if ht not in filterList:
-                      filterList.append(ht)
+        if "Hydration (ON)" in toggle_button.text:
+            print("HYDRATION BUTTON ON")
+            for ht in hList:
+                if ht not in filterList:
+                    filterList.append(ht)
 
-          elif "Hydration (OFF)" in toggle_button.text:
-              print("HYDRATION BUTTON OFF")
-              for h_t in hList:
-                  if h_t in filterList:
-                      filterList.remove(h_t)
+        elif "Hydration (OFF)" in toggle_button.text:
+            print("HYDRATION BUTTON OFF")
+            for h_t in hList:
+                if h_t in filterList:
+                    filterList.remove(h_t)
                  
-          if "Medication (ON)" in toggle_button.text:
-              print("MEDICATION BUTTON ON")
-              for mt in mList:
-                  if mt not in filterList:
-                      filterList.append(mt)
+        if "Medication (ON)" in toggle_button.text:
+            print("MEDICATION BUTTON ON")
+            for mt in mList:
+                if mt not in filterList:
+                    filterList.append(mt)
 
-          elif "Medication (OFF)" in toggle_button.text:
-              print("MEDICATION BUTTON OFF")
-              for m_t in mList:
-                  if m_t in filterList:
-                      filterList.remove(m_t)
+        elif "Medication (OFF)" in toggle_button.text:
+            print("MEDICATION BUTTON OFF")
+            for m_t in mList:
+                if m_t in filterList:
+                    filterList.remove(m_t)
 
 
-          #display filtered tasks
-          for ftask in filterList:
-              ftaskText = ftask.getTask()
+        #display filtered tasks
+        for ftask in filterList:
+            ftaskText = ftask.getTask()
              
-              container.add_widget(
-                  Label(
-                      text=ftaskText,
-                      color=(0, 0, 0, 1),
-                      size_hint_y=None,
-                      height=dp(75)
-                  )
-              )
+            label2 = Label(
+                text=ftaskText,
+                color=(0, 0, 0, 1),
+                size_hint_y=None,
+                height=dp(75)
+            )
+
+            container.add_widget(label2)
 
 
 
@@ -905,7 +909,6 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
-
 
 
 
