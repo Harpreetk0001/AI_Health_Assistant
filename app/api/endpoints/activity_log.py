@@ -30,7 +30,6 @@ def read_activities(
     db: Session = Depends(get_db)         # Database session
 ):
     return crud.get_activities(db=db, skip=skip, limit=limit)  # Get them from DB
-
 # Endpoint: Get a single activity log by its ID
 @router.get("/{activity_id}", response_model=ActivityLog)
 def read_activity(
