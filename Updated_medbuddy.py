@@ -51,7 +51,7 @@ KV = """
 <RoundedButton@Button>:
     background_normal: ""        # disable default square background
     background_down: ""          # disable pressed state image
-    background_color: 0.16, 0.56, 0.96, 1
+    background_color: 0.43, 0.79, 0.94, 1
     color: 1, 1, 1, 1
     size_hint_y: None
     height: dp(44)
@@ -67,7 +67,7 @@ KV = """
 <RoundedToggleButton@ToggleButton>:
     background_normal: ""
     background_down: ""
-    background_color: (0.16, 0.56, 0.96, 1) if self.state == "down" else (0.7, 0.7, 0.7, 1)
+    background_color: (0.43, 0.79, 0.94, 1) if self.state == "down" else (0.7, 0.7, 0.7, 1)
     color: 1, 1, 1, 1
     size_hint_y: None
     height: dp(44)
@@ -97,9 +97,9 @@ KV = """
 
 # ---------- Reusable building blocks ----------
 
-<NavBar@BoxLayout>:
+<NavBar@FloatLayout>:
     size_hint_y: None
-    height: dp(64)
+    height: dp(96)
     padding: dp(8), dp(8)
     spacing: dp(8)
     canvas.before:
@@ -110,19 +110,34 @@ KV = """
             size: self.size
             radius: [dp(16), dp(16), 0, 0]
     RoundedButton:
-        text: "Home"
+        pos_hint: {'center_x': 0.16, 'center_y': 0.5}
+        size_hint: (0.075, 0.7)
+        background_normal: 'home_normal.png'
+        background_down: 'home_down.png'
         on_release: app.sm.current = "home"
     RoundedButton:
-        text: "Health"
+        pos_hint: {'center_x': 0.32, 'center_y': 0.5}
+        size_hint: (0.075, 0.7)
+        background_normal: 'health_normal.png'
+        background_down: 'health_down.png'
         on_release: app.sm.current = "health"
     RoundedButton:
-        text: "Routine"
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        size_hint: (0.075, 0.7)
+        background_normal: 'routine_normal.png'
+        background_down: 'routine_down.png'
         on_release: app.sm.current = "routine"
     RoundedButton:
-        text: "Chatbot"
+        pos_hint: {'center_x': 0.66, 'center_y': 0.5}
+        size_hint: (0.075, 0.7)
+        background_normal: 'chatbot_normal.png'
+        background_down: 'chatbot_down.png'
         on_release: app.sm.current = "chat"
     RoundedButton:
-        text: "Profile"
+        pos_hint: {'center_x': 0.82, 'center_y': 0.5}
+        size_hint: (0.075, 0.7)
+        background_normal: 'profile_normal.png'
+        background_down: 'profile_down.png'
         on_release: app.sm.current = "profile"
 
 <Card@BoxLayout>:
@@ -309,20 +324,30 @@ KV = """
             GridLayout:
                 cols: 5
                 size_hint_y: None
-                height: dp(64)
+                height: dp(128)
                 padding: 0, dp(4)
                 spacing: dp(8)
 
                 EmojiLabel:
                     text: "❤️\\n72"
+                    font_size: 40
+                    color: 0, 0, 0, 1
                 EmojiLabel:
                     text: "🩸\\n120/80"
+                    font_size: 40
+                    color: 0, 0, 0, 1
                 EmojiLabel:
                     text: "💧\\nGood"
+                    font_size: 40
+                    color: 0, 0, 0, 1
                 EmojiLabel:
                     text: "😴\\n7h"
+                    font_size: 40
+                    color: 0, 0, 0, 1
                 EmojiLabel:
                     text: "🚶\\n3.2k"
+                    font_size: 40
+                    color: 0, 0, 0, 1
 
         Widget:
 
@@ -1003,7 +1028,6 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
-
 
 
 
