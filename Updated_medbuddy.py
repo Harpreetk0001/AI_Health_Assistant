@@ -11,7 +11,7 @@ from anomalydetection import run_fall_detection # anomalydetection.py file
 from datetime import datetime
 from kivy.properties import StringProperty
 import time
-#imported webbrowser for yt exercise video links
+import webbrowser                               #imported webbrowser for yt exercise video links
 
 from HealthMonitoringCore import HealthGraph    # for the vitals graph
 from ToDoList import ToDoList                   # for the task manager
@@ -46,9 +46,56 @@ def find_emoji_font() -> str:
 KV = """
 #:import dp kivy.metrics.dp
 
-# ---------- Reusable building blocks ----------
+# ---------- Added Rounded button styles ----------
 
-#---Added Rounded button styles--->
+<RoundedButton@Button>:
+    background_normal: ""        # disable default square background
+    background_down: ""          # disable pressed state image
+    background_color: 0.16, 0.56, 0.96, 1
+    color: 1, 1, 1, 1
+    size_hint_y: None
+    height: dp(44)
+    font_size: "16sp"
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height/2, self.height/2, self.height/2, self.height/2]
+
+<RoundedToggleButton@ToggleButton>:
+    background_normal: ""
+    background_down: ""
+    background_color: (0.16, 0.56, 0.96, 1) if self.state == "down" else (0.7, 0.7, 0.7, 1)
+    color: 1, 1, 1, 1
+    size_hint_y: None
+    height: dp(44)
+    font_size: "16sp"
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height/2, self.height/2, self.height/2, self.height/2]
+
+<RoundedSpinner@Spinner>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0.3, 0.5, 0.8, 1
+    color: 1, 1, 1, 1
+    font_size: "16sp"
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height/2, self.height/2, self.height/2, self.height/2]
+
+
+# ---------- Reusable building blocks ----------
 
 <NavBar@BoxLayout>:
     size_hint_y: None
@@ -62,19 +109,19 @@ KV = """
             pos: self.pos
             size: self.size
             radius: [dp(16), dp(16), 0, 0]
-    Button:
+    RoundedButton:
         text: "Home"
         on_release: app.sm.current = "home"
-    Button:
+    RoundedButton:
         text: "Health"
         on_release: app.sm.current = "health"
-    Button:
+    RoundedButton:
         text: "Routine"
         on_release: app.sm.current = "routine"
-    Button:
+    RoundedButton:
         text: "Chatbot"
         on_release: app.sm.current = "chat"
-    Button:
+    RoundedButton:
         text: "Profile"
         on_release: app.sm.current = "profile"
 
@@ -117,7 +164,7 @@ KV = """
         RoundedRectangle:
             pos: self.pos
             size: self.size
-            radius: [dp(12), dp(12), dp(12), dp(12)]
+            radius: [dp(15), dp(15), dp(15), dp(15)]
 
 <Tag@Label>:
     size_hint_y: None
@@ -134,36 +181,39 @@ KV = """
 
 <SOSBtn@Button>:
     size_hint: None, None
-    size: dp(48), dp(48)
+    size: dp(56), dp(56)
     text: "SOS"
     font_size: "16sp"
     bold: True
+    # make the built-in background transparent so it won't cover our Ellipse
     background_normal: ""
-    background_color: 0.90, 0.10, 0.10, 1
-    color: 0,0,0,1
+    background_down: ""
+    background_color: 0, 0, 0, 0
+    color: 0, 0, 0, 1
     on_release: app.sm.current = "sos"
     canvas.before:
         Color:
-            rgba: self.background_color
+            rgba: 0.90, 0.10, 0.10, 1
         Ellipse:
-            pos: self.x, self.y
+            pos: self.pos
             size: self.size
 
 <SettingsBtn@Button>:
     size_hint: None, None
-    size: dp(48), dp(48)
+    size: dp(56), dp(56)
     text: "Settings"
     font_size: "12sp"
     bold: True
     background_normal: ""
-    background_color: 0.5, 0.5, 0.5, 1
+    background_down: ""
+    background_color: 0, 0, 0, 0
     color: 0, 0, 0, 1
     on_release: app.sm.current = "settings"
     canvas.before:
         Color:
-            rgba: self.background_color
+            rgba: 0.5, 0.5, 0.5, 1
         Ellipse:
-            pos: self.x, self.y
+            pos: self.pos
             size: self.size
 
 
@@ -192,7 +242,7 @@ KV = """
 <EmojiButton@Button>:
     font_name: app.emoji_font if app.emoji_font else self.font_name
 
-<ActionButtons@BoxLayout>:              #---added this to every UI Screen>
+<ActionButtons@BoxLayout>:       #---added this to every UI Screen>
     orientation: 'vertical'
     SOSBtn
     SettingsBtn
@@ -245,7 +295,7 @@ KV = """
                 size_hint_y: None
                 height: dp(40)
                 spacing: dp(8)
-                Button:
+                RoundedButton:
                     text: "Blood Pressure Spiked"
                     background_normal: ""
                     background_color: 0.95, 0.35, 0.35, 1
@@ -289,6 +339,12 @@ KV = """
         Header:
             title: "Health Monitoring"
 
+        BoxLayout:
+            spacing: dp(12)
+            size_hint_y: None
+            height: dp(64)
+            ActionButtons
+
         Card:
             title: "Trends"
             BoxLayout:
@@ -306,17 +362,23 @@ KV = """
                 color: 0.8,0.1,0.1,1
 
         Card:
-            title: "Exercise Videos"         #---Added yt video links>
+            title: "Exercise Videos"                                    #---Added yt video links>
             BoxLayout:
                 size_hint_y: None
                 height: dp(44)
                 spacing: dp(8)
-                EmojiButton:
-                    text: "⏮"
-                EmojiButton:
-                    text: "▶"
-                EmojiButton:
-                    text: "⏭"
+
+                ActionBtn:
+                    text: "Stretching"
+                    on_release: app.open_video("https://www.youtube.com/watch?v=yI4hnt0IXDw")
+
+                ActionBtn:
+                    text: "▶ Cardio"
+                    on_release: app.open_video("https://www.youtube.com/watch?v=LYJ3U0Fs4dg")
+
+                ActionBtn:
+                    text: "⏭ Strength"
+                    on_release: app.open_video("https://www.youtube.com/watch?v=0UaHYhBX6Rw")
 
         Widget:
 
@@ -331,6 +393,12 @@ KV = """
 
         Header:
             title: "Daily Routine"
+
+        BoxLayout:
+            spacing: dp(12)
+            size_hint_y: None
+            height: dp(64)
+            ActionButtons
 
         ScrollView:
             size_hint_y: None
@@ -372,19 +440,19 @@ KV = """
                 size_hint_y: None
                 height: dp(120)
                 spacing: dp(8)
-                ToggleButton:
+                RoundedToggleButton:
                     text: "Exercise (ON)" if self.state=="down" else "Exercise (OFF)"
                     state: "down"
                     on_state: app.on_toggle_pressed(self)
-                ToggleButton:
+                RoundedToggleButton:
                     text: "Sleep (ON)" if self.state=="down" else "Sleep (OFF)"
                     state: "down"
                     on_state: app.on_toggle_pressed(self)
-                ToggleButton:
+                RoundedToggleButton:
                     text: "Medication (ON)" if self.state=="down" else "Medication (OFF)"
                     state: "down"
                     on_state: app.on_toggle_pressed(self)
-                ToggleButton:
+                RoundedToggleButton:
                     text: "Hydration (ON)" if self.state=="down" else "Hydration (OFF)"
                     state: "down"
                     on_state: app.on_toggle_pressed(self)
@@ -403,6 +471,12 @@ KV = """
         Header:
             title: "AI Health Assistant"
 
+        BoxLayout:
+            spacing: dp(12)
+            size_hint_y: None
+            height: dp(64)
+            ActionButtons
+
         Card:
             title: "Conversation"
             BoxLayout:
@@ -410,8 +484,16 @@ KV = """
                 size_hint_y: None
                 height: dp(220)
                 spacing: dp(8)
+
+                AsyncImage:
+                    source: "https://t4.ftcdn.net/jpg/14/09/15/51/360_F_1409155154_pALBjHEVKuYFUrl9HJ9Q3zgpCuaHyFpI.jpg"    #---Added robot image-->
+                    size_hint_y: None
+                    height: dp(170)      # adjust size as needed
+                    allow_stretch: True
+                    keep_ratio: True
+
                 Label:
-                    text: "Hello John, how can I help you today?"         #---Added robot image-->
+                    text: "Hello John, how can I help you today?"
                     color: 0.12,0.12,0.15,1
                     size_hint_y: None
                     height: self.texture_size[1] + dp(6)
@@ -469,7 +551,7 @@ KV = """
                     Label:
                         text: "Belinda Wen  •  Daughter"
                         color: 0.12,0.12,0.15,1
-                    Button:
+                    RoundedButton:
                         text: "Call"
 
                 BoxLayout:
@@ -486,7 +568,7 @@ KV = """
                     Label:
                         text: "Anna Tanaka  •  Nurse"
                         color: 0.12,0.12,0.15,1
-                    Button:
+                    RoundedButton:
                         text: "Call"
 
                 BoxLayout:
@@ -503,7 +585,7 @@ KV = """
                     Label:
                         text: "Jimmy Cole  •  Nephew"
                         color: 0.12,0.12,0.15,1
-                    Button:
+                    RoundedButton:
                         text: "Call"
 
         Widget:
@@ -519,6 +601,12 @@ KV = """
 
         Header:
             title: "User Profile"
+
+        BoxLayout:
+            spacing: dp(12)
+            size_hint_y: None
+            height: dp(64)
+            ActionButtons
 
         Card:
             title: "Details"
@@ -552,7 +640,7 @@ KV = """
                 TextInput:
                     text: "+61 223 344 556"
     
-        Button:
+        RoundedButton:
             text: "Support"
             on_release: app.sm.current = "support"
 
@@ -579,21 +667,21 @@ KV = """
                 Label:
                     text: "Light Mode"
                     color: 0, 0, 0, 1 
-                ToggleButton:
+                RoundedToggleButton:
                     text: "ON" if self.state == "down" else "OFF"
                     state: "down"
 
                 Label:
                     text: "Speech to Text"
                     color: 0, 0, 0, 1
-                ToggleButton:
+                RoundedToggleButton:
                     text: "ON" if self.state == "down" else "OFF"
                     state: "down"
 
                 Label:
                     text: "Hearing Aid"
                     color: 0, 0, 0, 1
-                ToggleButton:
+                RoundedToggleButton:
                     text: "OFF"
 
         Card:
@@ -607,7 +695,7 @@ KV = """
 
         Card:
             title: "Language"
-            Spinner:
+            RoundedSpinner:
                 text: "English"
                 values: ["English","简体中文","Español","हिंदी"]
                 size_hint_y: None
@@ -708,7 +796,6 @@ class SOSConfirmScreen(Screen):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
-    
     def update_log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
         new_entry = f"[{timestamp}] {message}"  # define new_entry
@@ -728,8 +815,9 @@ class MedBuddyApp(App):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
-    #---Added Open Video webbrowser>
-    
+    def open_video(self, url):            #---Added Open Video webbrowser>
+        webbrowser.open(url)
+
     def build(self):
         self.title = "MedBuddy"
         # Make an emoji font available to KV
@@ -915,6 +1003,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
