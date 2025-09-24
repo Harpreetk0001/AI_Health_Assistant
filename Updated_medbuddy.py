@@ -11,6 +11,7 @@ from anomalydetection import run_fall_detection # anomalydetection.py file
 from datetime import datetime
 from kivy.properties import StringProperty
 import time
+#imported webbrowser for yt exercise video links
 
 from HealthMonitoringCore import HealthGraph    # for the vitals graph
 from ToDoList import ToDoList                   # for the task manager
@@ -46,6 +47,8 @@ KV = """
 #:import dp kivy.metrics.dp
 
 # ---------- Reusable building blocks ----------
+
+#---Added Rounded button styles--->
 
 <NavBar@BoxLayout>:
     size_hint_y: None
@@ -189,7 +192,7 @@ KV = """
 <EmojiButton@Button>:
     font_name: app.emoji_font if app.emoji_font else self.font_name
 
-<ActionButtons@BoxLayout>:
+<ActionButtons@BoxLayout>:              #---added this to every UI Screen>
     orientation: 'vertical'
     SOSBtn
     SettingsBtn
@@ -303,7 +306,7 @@ KV = """
                 color: 0.8,0.1,0.1,1
 
         Card:
-            title: "Exercise Videos"
+            title: "Exercise Videos"         #---Added yt video links>
             BoxLayout:
                 size_hint_y: None
                 height: dp(44)
@@ -408,7 +411,7 @@ KV = """
                 height: dp(220)
                 spacing: dp(8)
                 Label:
-                    text: "Hello John, how can I help you today?"
+                    text: "Hello John, how can I help you today?"         #---Added robot image-->
                     color: 0.12,0.12,0.15,1
                     size_hint_y: None
                     height: self.texture_size[1] + dp(6)
@@ -705,6 +708,7 @@ class SOSConfirmScreen(Screen):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
+    
     def update_log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
         new_entry = f"[{timestamp}] {message}"  # define new_entry
@@ -724,6 +728,8 @@ class MedBuddyApp(App):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
+    #---Added Open Video webbrowser>
+    
     def build(self):
         self.title = "MedBuddy"
         # Make an emoji font available to KV
@@ -909,6 +915,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
