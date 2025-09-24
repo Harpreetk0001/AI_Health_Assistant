@@ -73,28 +73,6 @@ class Vitals:
 
         VitalsMatrix[5].append(self.steps)
 
-        
-
-    #health monitoring grab historical vital signs from JSON DB#
-    #grab vitals over certain period of time and store in numpy array
-    def getHistory():
-        #get data records
-
-        #record time stamps
-        
-        
-        pass
-
-    ##NICE TO HAVE - FOR FUTURE DEV##
-    #health monitoring AI integration#
-    #use AI data analysis to generate alerts
-    def healthDataAnalysis():
-        pass
-
-    def displayHealthWarning(self, vital_type):
-        warning = "Your " + vital_type + " is not healthy, please seek medical advice/care"
-        return warning
-
     #custom function and set boundary for alerts
     def alert_boundary(self):
         if self.hydration not in range(2100, 2600):
@@ -117,6 +95,26 @@ class Vitals:
             #produce alert
             self.displayHealthWarning("Steps")
 
+    def displayHealthWarning(self, vital_type):
+        warning = "Your " + vital_type + " is not healthy, please seek medical advice/care"
+        return warning
+    
+    #health monitoring grab historical vital signs from JSON DB#
+    #grab vitals over certain period of time and store in numpy array
+    def getHistory():
+        #get data records
+
+        #record time stamps
+        
+        
+        pass
+
+    ##NICE TO HAVE - FOR FUTURE DEV##
+    #health monitoring AI integration#
+    #use AI data analysis to generate alerts
+    def healthDataAnalysis():
+        pass
+
 ##TESTING##
 
 #data record 1#
@@ -134,4 +132,5 @@ Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
 Vitals.alert_boundary(Vitals1)
 Vitals.alert_boundary(Vitals2)
 Vitals.alert_boundary(Vitals3)
+
 
