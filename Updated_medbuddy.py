@@ -48,6 +48,102 @@ KV = """
 
 # ---------- Added Rounded button styles ----------
 
+<RoundedField@TextInput>:
+    background_normal: ""
+    background_active: ""
+    size_hint_y: None
+    height: dp(44)
+    font_size: "16sp"
+    cursor_color: 0, 0, 0, 1
+    foreground_color: 0, 0, 0, 1
+    hint_text_color: 0.45, 0.48, 0.52, 1
+    write_tab: False
+    multiline: False
+    disabled: False
+    readonly: False
+    halign: "center"
+
+    # Centers text vertically by adjusting internal padding
+    padding: [0, (self.height - self.line_height) / 2]
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12), dp(12), dp(12), dp(12)]
+        Color:
+            rgba: (0.76, 0.79, 0.83, 1) if not self.focus else (0.16, 0.56, 0.96, 1)
+        Line:
+            width: 1.25
+            rounded_rectangle: (self.x, self.y, self.width, self.height, dp(12))
+
+<RoundedPrimaryButton@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0.16, 0.56, 0.96, 1
+    color: 1, 1, 1, 1
+    font_size: "17sp"
+    bold: True
+    size_hint_y: None
+    height: dp(48)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(24), dp(24), dp(24), dp(24)]
+
+
+# pill-style input just for chat
+<ChatInputField@TextInput>:
+    background_normal: ""
+    background_active: ""
+    multiline: False
+    font_size: "16sp"
+    size_hint_y: None
+    height: dp(48)
+    cursor_color: 0, 0, 0, 1
+    foreground_color: 0, 0, 0, 1
+    hint_text_color: 0.45, 0.48, 0.52, 1
+    # left-align text, but center it vertically
+    halign: "left"
+    padding: [dp(14), (self.height - self.line_height) / 2]
+
+    # draw everything behind the text so typing works
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(24), dp(24), dp(24), dp(24)]
+        Color:
+            rgba: (0.76, 0.79, 0.83, 1) if not self.focus else (0.16, 0.56, 0.96, 1)
+        Line:
+            width: 1.25
+            rounded_rectangle: (self.x, self.y, self.width, self.height, dp(24))
+
+# rounded primary button for Send
+<SendButton@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0.16, 0.56, 0.96, 1
+    color: 1, 1, 1, 1
+    bold: True
+    font_size: "17sp"
+    size_hint_y: None
+    height: dp(48)
+    canvas.before:
+        Color:
+            rgba: self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(24), dp(24), dp(24), dp(24)]
+
 <RoundedButton@Button>:
     background_normal: ""        # disable default square background
     background_down: ""          # disable pressed state image
@@ -488,16 +584,13 @@ KV = """
         orientation: "vertical"
         padding: dp(16)
         spacing: dp(12)
-
         Header:
             title: "AI Health Assistant"
-
         BoxLayout:
             spacing: dp(12)
             size_hint_y: None
             height: dp(64)
             ActionButtons
-
         Card:
             title: "Conversation"
             BoxLayout:
@@ -505,39 +598,32 @@ KV = """
                 size_hint_y: None
                 height: dp(220)
                 spacing: dp(8)
-
                 AsyncImage:
-                    source: "https://t4.ftcdn.net/jpg/14/09/15/51/360_F_1409155154_pALBjHEVKuYFUrl9HJ9Q3zgpCuaHyFpI.jpg"    #---Added robot image-->
+                    source: "https://t4.ftcdn.net/jpg/14/09/15/51/360_F_1409155154_pALBjHEVKuYFUrl9HJ9Q3zgpCuaHyFpI.jpg"
                     size_hint_y: None
-                    height: dp(170)      # adjust size as needed
+                    height: dp(170)
                     allow_stretch: True
                     keep_ratio: True
-
                 Label:
-                    text: "Hello John, how can I help you today?"
+                    id: response_label
+                    text: "Hello! This is a UI-only demo."
                     color: 0.12,0.12,0.15,1
                     size_hint_y: None
                     height: self.texture_size[1] + dp(6)
-                Label:
-                    text: "Tip: You can ask for recipes, jokes or health tips."
-                    color: 0.25,0.25,0.3,1
-                    size_hint_y: None
-                    height: self.texture_size[1] + dp(6)
-
         BoxLayout:
             size_hint_y: None
             height: dp(56)
             spacing: dp(8)
-            TextInput:
+            ChatInputField:
                 id: user_input
                 hint_text: "Type a message…"
-                multiline: False
+                size_hint_x: 1
+                
             ActionBtn:
                 text: "Send"
                 on_release: app.fake_send(user_input)
-
         Widget:
-
+        
         NavBar
 
 <SupportScreen>:
@@ -634,36 +720,79 @@ KV = """
             GridLayout:
                 cols: 2
                 size_hint_y: None
-                height: dp(180)
-                spacing: dp(8)
+                height: self.minimum_height
+                spacing: dp(10)
+                row_default_height: dp(44)
+                row_force_default: True
 
+                # Name
                 Label:
                     text: "Name"
                     color: 0, 0, 0, 1
-                TextInput:
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_name
+                    size_hint_x: .65
                     text: "Harry"
+                    hint_text: "Full name"
+                    write_tab: False
 
+                # Age
                 Label:
                     text: "Age"
                     color: 0, 0, 0, 1
-                TextInput:
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_age
+                    size_hint_x: .65
                     text: "78"
+                    hint_text: "Age"
+                    input_filter: "int"
+                    write_tab: False
 
+                # Primary Caregiver
                 Label:
                     text: "Primary Caregiver"
                     color: 0, 0, 0, 1
-                TextInput:
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_caregiver
+                    size_hint_x: .65
                     text: "Belinda Wen"
+                    hint_text: "Caregiver name"
+                    write_tab: False
 
+                # Caregiver Phone
                 Label:
                     text: "Caregiver Phone"
                     color: 0, 0, 0, 1
-                TextInput:
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_phone
+                    size_hint_x: .65
                     text: "+61 223 344 556"
-    
-        RoundedButton:
-            text: "Support"
-            on_release: app.sm.current = "support"
+                    hint_text: "Phone number"
+                    write_tab: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(64)
+            padding: dp(8), 0
+            RoundedPrimaryButton:
+                text: "💬  Support"
+                on_release: app.sm.current = "support"
 
         NavBar
 
@@ -1036,6 +1165,7 @@ class MedBuddyApp(App):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
