@@ -83,6 +83,7 @@ KV = """
     background_normal: ""
     background_down: ""
     background_color: 0.16, 0.56, 0.96, 1
+    text: ""
     color: 1, 1, 1, 1
     font_size: "17sp"
     bold: True
@@ -130,6 +131,7 @@ KV = """
 <SendButton@Button>:
     background_normal: ""
     background_down: ""
+    text: ""
     background_color: 0.16, 0.56, 0.96, 1
     color: 1, 1, 1, 1
     bold: True
@@ -147,6 +149,7 @@ KV = """
 <RoundedButton@Button>:
     background_normal: ""        # disable default square background
     background_down: ""          # disable pressed state image
+    text: ""
     background_color: 0.43, 0.79, 0.94, 1
     color: 1, 1, 1, 1
     size_hint_y: None
@@ -163,6 +166,7 @@ KV = """
 <RoundedToggleButton@ToggleButton>:
     background_normal: ""
     background_down: ""
+    text: ""
     background_color: (0.43, 0.79, 0.94, 1) if self.state == "down" else (0.7, 0.7, 0.7, 1)
     color: 1, 1, 1, 1
     size_hint_y: None
@@ -205,33 +209,33 @@ KV = """
             pos: self.pos
             size: self.size
             radius: [dp(16), dp(16), 0, 0]
-    RoundedButton:
+    Button:
         pos_hint: {'center_x': 0.16, 'center_y': 0.5}
-        size_hint: (0.075, 0.7)
+        size_hint: {0.09, 0.75}
         background_normal: 'home_normal.png'
         background_down: 'home_down.png'
         on_release: app.sm.current = "home"
-    RoundedButton:
+    Button:
         pos_hint: {'center_x': 0.32, 'center_y': 0.5}
-        size_hint: (0.075, 0.7)
+        size_hint: {0.075, 0.75}
         background_normal: 'health_normal.png'
         background_down: 'health_down.png'
         on_release: app.sm.current = "health"
-    RoundedButton:
+    Button:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        size_hint: (0.075, 0.7)
+        size_hint: {0.08, 0.75}
         background_normal: 'routine_normal.png'
         background_down: 'routine_down.png'
         on_release: app.sm.current = "routine"
-    RoundedButton:
+    Button:
         pos_hint: {'center_x': 0.66, 'center_y': 0.5}
-        size_hint: (0.075, 0.7)
+        size_hint: {0.075, 0.75}
         background_normal: 'chatbot_normal.png'
         background_down: 'chatbot_down.png'
         on_release: app.sm.current = "chat"
-    RoundedButton:
+    Button:
         pos_hint: {'center_x': 0.82, 'center_y': 0.5}
-        size_hint: (0.075, 0.7)
+        size_hint: {0.075, 0.6}
         background_normal: 'profile_normal.png'
         background_down: 'profile_down.png'
         on_release: app.sm.current = "profile"
@@ -415,6 +419,21 @@ KV = """
                     height: dp(40)
                     on_release: app.sm.current = "health"
 
+        Image:
+            source: 'LOGO.png'
+
+            # Giving the size of image
+            size_hint_x: 0.75
+
+            # allow stretching of image 
+            # allow_stretch: True
+
+            #centre the image
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+            padding: 10
+            
+
         Card:
             title: "Vitals"
             GridLayout:
@@ -494,11 +513,11 @@ KV = """
                     on_release: app.open_video("https://www.youtube.com/watch?v=yI4hnt0IXDw")
 
                 ActionBtn:
-                    text: "▶ Cardio"
+                    text: "Cardio"
                     on_release: app.open_video("https://www.youtube.com/watch?v=LYJ3U0Fs4dg")
 
                 ActionBtn:
-                    text: "⏭ Strength"
+                    text: "Strength"
                     on_release: app.open_video("https://www.youtube.com/watch?v=0UaHYhBX6Rw")
 
         Widget:
@@ -532,10 +551,12 @@ KV = """
 
         Card:
             title: "Today (Mon)"
+            size_hint_y: 0.7
+            padding: 100
+            spacing: 100
             BoxLayout:
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 orientation: "vertical"
-                size_hint_y: None
-                height: self.minimum_height
                 spacing: dp(6)
                 # simple timeline items
                 EmojiLabel:
@@ -554,6 +575,10 @@ KV = """
                     size_hint_y: None
                     height: self.texture_size[1] + dp(4)
 
+        RoundedButton:
+            text: "Add Task"
+            size_y: 300
+
         Card:
             title: "Reminder Types"
             GridLayout:
@@ -562,17 +587,17 @@ KV = """
                 height: dp(120)
                 spacing: dp(8)
                 RoundedToggleButton:
-                    text: "Exercise (ON)" if self.state=="normal" else "Exercise (OFF)"
-                    on_press: app.on_toggle_pressed(self)
+                    text: "Exercise (ON)" if self.state=="down" else "Exercise (OFF)"
+                    #on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
-                    text: "Sleep (ON)" if self.state=="normal" else "Sleep (OFF)"
-                    on_press: app.on_toggle_pressed(self)
+                    text: "Sleep (ON)" if self.state=="down" else "Sleep (OFF)"
+                    #on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
-                    text: "Medication (ON)" if self.state=="normal" else "Medication (OFF)"
-                    on_press: app.on_toggle_pressed(self)
+                    text: "Medication (ON)" if self.state=="down" else "Medication (OFF)"
+                    #on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
-                    text: "Hydration (ON)" if self.state=="normal" else "Hydration (OFF)"
-                    on_press: app.on_toggle_pressed(self)
+                    text: "Hydration (ON)" if self.state=="down" else "Hydration (OFF)"
+                    #on_press: app.on_toggle_pressed(self)
 
         Widget:
 
@@ -636,6 +661,12 @@ KV = """
         Header:
             title: "My Support Network"
 
+        BoxLayout:
+            spacing: dp(12)
+            size_hint_y: None
+            height: dp(64)
+            ActionButtons
+
         Card:
             title: "Contacts"
             BoxLayout:
@@ -655,9 +686,22 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [dp(12), dp(12), dp(12), dp(12)]
+                    Image:
+                        source: "BelindaPFP.png"
+                        size_hint_x: None
+                        allow_stretch: True
+
                     Label:
                         text: "Belinda Wen  •  Daughter"
                         color: 0.12,0.12,0.15,1
+
+                    Button:
+                        pos_hint: {'center_y': 0.5}
+                        background_normal: "FullStar.png"
+                        size_hint: None, None  # Fixed size
+                        width: 45
+                        height: 45
+
                     RoundedButton:
                         text: "Call"
 
@@ -672,9 +716,22 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [dp(12), dp(12), dp(12), dp(12)]
+                    Image:
+                        source: "AnnaPFP.png"
+                        size_hint_x: None
+                        allow_stretch: True
+                        
                     Label:
                         text: "Anna Tanaka  •  Nurse"
                         color: 0.12,0.12,0.15,1
+
+                    Button:
+                        pos_hint: {'center_y': 0.5}
+                        background_normal: "BlankStar.png"
+                        size_hint: None, None  # Fixed size
+                        width: 45
+                        height: 45
+
                     RoundedButton:
                         text: "Call"
 
@@ -689,9 +746,22 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [dp(12), dp(12), dp(12), dp(12)]
+                    Image:
+                        source: "JimmyPFP.png"
+                        size_hint_x: None
+                        allow_stretch: True
+                        
                     Label:
                         text: "Jimmy Cole  •  Nephew"
                         color: 0.12,0.12,0.15,1
+
+                    Button:
+                        pos_hint: {'center_y': 0.5}
+                        size_hint: None, None  # Fixed size
+                        width: 45
+                        height: 45
+                        background_normal: "BlankStar.png"
+                    
                     RoundedButton:
                         text: "Call"
 
@@ -786,13 +856,14 @@ KV = """
                     hint_text: "Phone number"
                     write_tab: False
 
-        BoxLayout:
-            size_hint_y: None
-            height: dp(64)
-            padding: dp(8), 0
-            RoundedPrimaryButton:
-                text: "💬  Support"
-                on_release: app.sm.current = "support"
+            BoxLayout:
+                size_hint_y: None
+                height: dp(64)
+                padding: dp(8), 0
+                RoundedPrimaryButton:
+                    text: "Support"
+                    on_release: app.sm.current = "support"
+        Widget:
 
         NavBar
 
@@ -851,6 +922,8 @@ KV = """
                 size_hint_y: None
                 height: dp(40)
 
+        Widget:
+        
         NavBar
 
 <SOSConfirmScreen>:
@@ -900,6 +973,9 @@ KV = """
                     background_color: 0.65, 0.12, 0.18, 1
                     on_release: app.sm.current = "home"
 
+        Card:
+            title: "Alert Logs"
+            
         ScrollView:
             size_hint_y: 1
             do_scroll_x: False
@@ -1018,77 +1094,65 @@ class MedBuddyApp(App):
         routine = self.sm.get_screen("routine")
         container = routine.ids.tasks_container
 
+        container.clear_widgets()
+
+        filterList = []
+
+        #for at in self.todo.tasks:
+            #filterList.append(at)
+
         eList = self.todo.displayByTag("Exercise")
         sList = self.todo.displayByTag("Sleep")
         hList = self.todo.displayByTag("Hydration")
         mList = self.todo.displayByTag("Medication")
+        
+        if "Exercise (ON)" in toggle_button.text:
+            print("EXERCISE BUTTON ON")
+            for et in eList:
+                if et not in filterList:
+                    filterList.append(et)
+                 
+        elif "Exercise (OFF)" in toggle_button.text:
+            print("EXERCISE BUTTON OFF")
+            for e_t in eList:
+                if e_t in filterList:
+                    filterList.remove(e_t)
+                 
+        if "Sleep (ON)" in toggle_button.text:
+            print("SLEEP BUTTON ON")
+            for st in sList:
+                if st not in filterList:
+                    filterList.append(st)
+                 
+        elif "Sleep (OFF)" in toggle_button.text:
+            print("SLEEP BUTTON OFF")
+            for s_t in sList:
+                if s_t in filterList:
+                    filterList.remove(s_t)
+                 
+        if "Hydration (ON)" in toggle_button.text:
+            print("HYDRATION BUTTON ON")
+            for ht in hList:
+                if ht not in filterList:
+                    filterList.append(ht)
 
-        filterList = []
+        elif "Hydration (OFF)" in toggle_button.text:
+            print("HYDRATION BUTTON OFF")
+            for h_t in hList:
+                if h_t in filterList:
+                    filterList.remove(h_t)
+                 
+        if "Medication (ON)" in toggle_button.text:
+            print("MEDICATION BUTTON ON")
+            for mt in mList:
+                if mt not in filterList:
+                    filterList.append(mt)
 
-        for e in eList:
-            filterList.append(e)
-        for s in sList:
-            filterList.append(s)
-        for h in hList:
-            filterList.append(h)
-        for m in mList:
-            filterList.append(m)
-
-        container.clear_widgets()
-
-        if toggle_button.state == "down":
-            if "Exercise" in toggle_button.text:
-                print("EXERCISE BUTTON ON")
-                for et in eList:
-                    if et not in filterList:
-                        filterList.append(et)
-
-            if "Sleep" in toggle_button.text:
-                print("SLEEP BUTTON ON")
-                for st in sList:
-                    if st not in filterList:
-                        filterList.append(st)
-
-            if "Hydration" in toggle_button.text:
-                print("HYDRATION BUTTON ON")
-                for ht in hList:
-                    if ht not in filterList:
-                        filterList.append(ht)
-
-            if "Medication" in toggle_button.text:
-                print("MEDICATION BUTTON ON")
-                for mt in mList:
-                    if mt not in filterList:
-                        filterList.append(mt)
-                        
-        else:
-            if "Exercise" in toggle_button.text:
-                toggle_button.text = "Exercise (OFF)"
-                print("EXERCISE BUTTON OFF")
-                for e_t in eList:
-                    if e_t in filterList:
-                        filterList.remove(e_t)
-
-            if "Sleep" in toggle_button.text:
-                toggle_button.text = "Sleep (OFF)"
-                print("SLEEP BUTTON OFF")
-                for s_t in sList:
-                    if s_t in filterList:
-                        filterList.remove(s_t)
-
-            if "Hydration" in toggle_button.text:
-                toggle_button.text = "Hydration (OFF)"
-                print("HYDRATION BUTTON OFF")
-                for h_t in hList:
-                    if h_t in filterList:
-                        filterList.remove(h_t)
-
-            if "Medication" in toggle_button.text:
-                toggle_button.text = "Medication (OFF)"
-                print("MEDICATION BUTTON OFF")
-                for m_t in mList:
-                    if m_t in filterList:
-                        filterList.remove(m_t)
+        elif "Medication (OFF)" in toggle_button.text:
+            print("MEDICATION BUTTON OFF")
+            for m_t in mList:
+                if m_t in filterList:
+                    filterList.remove(m_t)
 
 
         #display filtered tasks
@@ -1103,7 +1167,6 @@ class MedBuddyApp(App):
             )
 
             container.add_widget(label2)
-
 
 
     #Anomalydetection.py
