@@ -10,6 +10,7 @@ from kivy.clock import Clock
 from anomalydetection import run_fall_detection # anomalydetection.py file
 from datetime import datetime
 from kivy.properties import StringProperty
+from kivy.uix.button import Button
 import time
 import webbrowser                               #imported webbrowser for yt exercise video links
 
@@ -540,40 +541,29 @@ KV = """
             height: dp(64)
             ActionButtons
 
-        ScrollView:
-            size_hint_y: None
-            height: dp(200)
-            BoxLayout:
-                id: tasks_container
-                orientation: "vertical"
-                size_hint_y: None
-                height: self.minimum_height
-
         Card:
-            title: "Today (Mon)"
-            size_hint_y: 0.7
-            padding: 100
-            spacing: 100
-            BoxLayout:
-                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-                orientation: "vertical"
-                spacing: dp(6)
-                # simple timeline items
-                EmojiLabel:
-                    text: "7:00  •  Take Medication  ✅"
-                    color: 0.12,0.12,0.15,1
+            id: weekday_title
+            title: "Today"
+
+        BoxLayout:
+            size_hint_y: 0.9
+            spacing: dp(8)
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [dp(12), dp(12), dp(12), dp(12)]
+            ScrollView:
+                size_hint_y: 0.9
+                padding: 100
+                space: 100
+                BoxLayout:
+                    id: tasks_container
+                    orientation: "vertical"
                     size_hint_y: None
-                    height: self.texture_size[1] + dp(4)
-                EmojiLabel:
-                    text: "8:00  •  Hydration  ✅"
-                    color: 0.12,0.12,0.15,1
-                    size_hint_y: None
-                    height: self.texture_size[1] + dp(4)
-                EmojiLabel:
-                    text: "10:00 •  Doctor Appointment  ⏳"
-                    color: 0.12,0.12,0.15,1
-                    size_hint_y: None
-                    height: self.texture_size[1] + dp(4)
+                    height: self.minimum_height
 
         RoundedButton:
             text: "Add Task"
@@ -588,16 +578,20 @@ KV = """
                 spacing: dp(8)
                 RoundedToggleButton:
                     text: "Exercise (ON)" if self.state=="down" else "Exercise (OFF)"
-                    #on_press: app.on_toggle_pressed(self)
+                    state: "down"
+                    on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
                     text: "Sleep (ON)" if self.state=="down" else "Sleep (OFF)"
-                    #on_press: app.on_toggle_pressed(self)
+                    state: "down"
+                    on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
                     text: "Medication (ON)" if self.state=="down" else "Medication (OFF)"
-                    #on_press: app.on_toggle_pressed(self)
+                    state: "down"
+                    on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
                     text: "Hydration (ON)" if self.state=="down" else "Hydration (OFF)"
-                    #on_press: app.on_toggle_pressed(self)
+                    state: "down"
+                    on_press: app.on_toggle_pressed(self)
 
         Widget:
 
@@ -697,7 +691,8 @@ KV = """
 
                     Button:
                         pos_hint: {'center_y': 0.5}
-                        background_normal: "FullStar.png"
+                        background_normal: "BlankStar.png"
+                        background_down: "FullStar.png"
                         size_hint: None, None  # Fixed size
                         width: 45
                         height: 45
@@ -728,6 +723,7 @@ KV = """
                     Button:
                         pos_hint: {'center_y': 0.5}
                         background_normal: "BlankStar.png"
+                        background_down: "FullStar.png"
                         size_hint: None, None  # Fixed size
                         width: 45
                         height: 45
@@ -761,6 +757,7 @@ KV = """
                         width: 45
                         height: 45
                         background_normal: "BlankStar.png"
+                        background_down: "FullStar.png"
                     
                     RoundedButton:
                         text: "Call"
@@ -1069,24 +1066,45 @@ class MedBuddyApp(App):
          # 3) (optional) set up your To-Do list
          self.init_todo_list()
 
+         #get title of current day and display
+         routine = self.sm.get_screen("routine")
+         
+         current_datetime = datetime.now()
+         weekday = str(current_datetime.strftime("%A"))
+         print(weekday)
+         routine.ids.weekday_title.title = f"Today ({weekday})"
+
     def init_todo_list(self):
         # instantiate the ToDoList
         self.todo = ToDoList()
         # get the Routine screen and its container
         routine = self.sm.get_screen("routine")
         container = routine.ids.tasks_container
-        # add each task as a Label (or your custom widget)
-        for task in self.todo.tasks:
 
-            label1 = Label(
-                text=f"{task.title} \n{task.description} \nDue: {task.dueDateTime} \nStatus: {task.status}",
-                color=(0, 0, 0, 1),
+        self.filterList = []
+
+        sorted_tasks = sorted(self.todo.tasks, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
+        
+        # add each task as a Label (or your custom widget)
+        for task in sorted_tasks:
+            
+            if task.status == "Complete":
+                c = (0.8, 0.99, 0.76, 1)
+            elif task.status == "Incomplete":
+                c = (0.95, 0.66, 0.63, 1)
+                
+            taskButton1 = Button(
+                text=f"{task.dueDateTime}           {task.title}            {task.status}",
+                bold=True,
+                color=(0,0,0,1),
+                background_normal='',
+                background_color=c,
                 size_hint_y=None,
-                height=dp(75)
             )
             
-            container.add_widget(label1)
+            container.add_widget(taskButton1)
 
+            self.filterList.append(task)
 
     #filtering to-do list
     def on_toggle_pressed(self, toggle_button):
@@ -1096,10 +1114,7 @@ class MedBuddyApp(App):
 
         container.clear_widgets()
 
-        filterList = []
-
-        #for at in self.todo.tasks:
-            #filterList.append(at)
+        filterList = self.filterList
 
         eList = self.todo.displayByTag("Exercise")
         sList = self.todo.displayByTag("Sleep")
@@ -1108,65 +1123,67 @@ class MedBuddyApp(App):
         
         if "Exercise (ON)" in toggle_button.text:
             print("EXERCISE BUTTON ON")
-            for et in eList:
-                if et not in filterList:
-                    filterList.append(et)
+            for e in eList:
+                filterList.append(e)
                  
         elif "Exercise (OFF)" in toggle_button.text:
             print("EXERCISE BUTTON OFF")
-            for e_t in eList:
-                if e_t in filterList:
-                    filterList.remove(e_t)
+            for et in filterList:
+                if et.tag == "Exercise":
+                    filterList.remove(et)
                  
         if "Sleep (ON)" in toggle_button.text:
             print("SLEEP BUTTON ON")
-            for st in sList:
-                if st not in filterList:
-                    filterList.append(st)
+            for s in sList:
+                filterList.append(s)            
                  
         elif "Sleep (OFF)" in toggle_button.text:
             print("SLEEP BUTTON OFF")
-            for s_t in sList:
-                if s_t in filterList:
-                    filterList.remove(s_t)
-                 
+            for st in filterList:
+                if st.tag == "Sleep":
+                    filterList.remove(st)
+            
         if "Hydration (ON)" in toggle_button.text:
             print("HYDRATION BUTTON ON")
-            for ht in hList:
-                if ht not in filterList:
-                    filterList.append(ht)
-
+            for h in hList:
+                filterList.append(h)
+                
         elif "Hydration (OFF)" in toggle_button.text:
             print("HYDRATION BUTTON OFF")
-            for h_t in hList:
-                if h_t in filterList:
-                    filterList.remove(h_t)
+            for ht in filterList:
+                if ht.tag == "Hydration":
+                    filterList.remove(ht)
                  
         if "Medication (ON)" in toggle_button.text:
             print("MEDICATION BUTTON ON")
-            for mt in mList:
-                if mt not in filterList:
-                    filterList.append(mt)
+            for m in mList:
+                filterList.append(m)
 
         elif "Medication (OFF)" in toggle_button.text:
             print("MEDICATION BUTTON OFF")
-            for m_t in mList:
-                if m_t in filterList:
-                    filterList.remove(m_t)
+            for mt in filterList:
+                if mt.tag == "Medication":
+                    filterList.remove(mt)
 
+        sorted_tasks = sorted(filterList, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
 
         #display filtered tasks
-        for ftask in filterList:
-            ftaskText = ftask.getTask()
-             
-            label2 = Label(
-                text=ftaskText,
-                color=(0, 0, 0, 1),
+        for ftask in sorted_tasks:
+            if ftask.status == "Complete":
+                c = (0.8, 0.99, 0.76, 1)
+            elif ftask.status == "Incomplete":
+                c = (0.95, 0.66, 0.63, 1)
+                
+            taskButton2 = Button(
+                text=f"{ftask.dueDateTime}            {ftask.title}            {ftask.status}",
+                bold=True,
+                color=(0,0,0,1),
+                background_normal='',
+                background_color=c,
                 size_hint_y=None,
-                height=dp(75)
             )
 
-            container.add_widget(label2)
+            container.add_widget(taskButton2)
 
 
     #Anomalydetection.py
