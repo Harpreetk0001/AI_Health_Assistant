@@ -29,7 +29,8 @@ class ToDoList:
         elif attribute == "description":
             Task.description = new_value
         elif attribute == "dueDateTime":
-            Task.dueDateTime = datetime.strptime(new_value, "%Y-%m-%d %H:%M")
+            new_time = datetime.strptime(new_value, "%Y-%m-%d %H:%M")
+            Task.dueDateTime = new_time.strftime("%I:%M %p, %d %B %Y").lstrip("0").replace(" 0", " ")
         elif attribute == "tag":
             Task.tag = new_value
         elif attribute == "status":
@@ -79,17 +80,16 @@ class ToDoList:
         
 class Task:
     def __init__(self, dueDateTime, title, description, tag, status):
-        self.dueDateTime = datetime.strptime(dueDateTime, "%Y-%m-%d %H:%M")
+        time = datetime.strptime(dueDateTime, "%Y-%m-%d %H:%M")
+        self.dueDateTime = time.strftime("%I:%M %p, %d %B %Y").lstrip("0").replace(" 0", " ")
         self.title = title
         self.description = description
         self.tag = tag
         self.status = status
 
     def getTask(self):
-
-        dueDateTimeStr = self.dueDateTime.strftime("%Y-%m-%d %H:%M")
         
-        task_str = f"Task name: {self.title} \nDescription: {self.description} \nTag: {self.tag} \nDue date and time: {dueDateTimeStr} \nStatus: {self.status}"
+        task_str = f"Task name: {self.title} \nDescription: {self.description} \nTag: {self.tag} \nDue date and time: {self.dueDateTime} \nStatus: {self.status}"
 
         #print(task_str)
 
