@@ -10,12 +10,15 @@ from kivy.clock import Clock
 from anomalydetection import run_fall_detection # anomalydetection.py file
 from datetime import datetime
 from kivy.properties import StringProperty
+from kivymd.app import MDApp
 from kivy.uix.button import Button
+from kivymd.uix.pickers import MDTimePicker, MDDatePicker
 import time
 import webbrowser                               #imported webbrowser for yt exercise video links
+from functools import partial
 
 from HealthMonitoringCore import HealthGraph    # for the vitals graph
-from ToDoList import ToDoList                   # for the task manager
+from ToDoList import ToDoList, Task             # for the task manager
 from kivy.uix.label import Label
 
 
@@ -375,6 +378,13 @@ KV = """
         padding: dp(16)
         spacing: dp(12)
 
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
         Header:
             title: "MedBuddy"
 
@@ -476,7 +486,14 @@ KV = """
         orientation: "vertical"
         padding: dp(16)
         spacing: dp(12)
-
+        
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "Health Monitoring"
 
@@ -532,6 +549,13 @@ KV = """
         padding: dp(16)
         spacing: dp(12)
 
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "Daily Routine"
 
@@ -546,7 +570,7 @@ KV = """
             title: "Today"
 
         BoxLayout:
-            size_hint_y: 0.9
+            size_y: 0.9
             spacing: dp(8)
             canvas.before:
                 Color:
@@ -568,6 +592,8 @@ KV = """
         RoundedButton:
             text: "Add Task"
             size_y: 300
+            on_press: app.add_task()
+            on_release: app.sm.current = "task"
 
         Card:
             title: "Reminder Types"
@@ -597,14 +623,168 @@ KV = """
 
         NavBar
 
+<TaskScreen>:
+    name: "task"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
+        Header:
+            title: "Task"
+
+        BoxLayout:
+            spacing: dp(12)
+            size_hint_y: None
+            height: dp(64)
+            ActionButtons
+
+        Card:
+            id: create_edit
+            title: "Create/Edit Task"
+            GridLayout:
+                cols: 2
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(10)
+                row_default_height: dp(44)
+                row_force_default: True
+
+                # Title
+                Label:
+                    text: "Title"
+                    color: 0, 0, 0, 1
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_taskTitle
+                    size_hint_x: .65
+                    text: ""
+                    hint_text: "Task Title"
+                    write_tab: False
+
+                # Description
+                Label:
+                    text: "Description"
+                    color: 0, 0, 0, 1
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_desc
+                    size_hint_x: .65
+                    text: ""
+                    hint_text: "Description"
+                    write_tab: False
+
+                # Due date
+                Label:
+                    id: date_label
+                    text: "Due Date"
+                    color: 0, 0, 0, 1
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: fld_date
+                    size_hint_x: .65
+                    text: ""
+                    hint_text: "Select a date"
+                    on_focus: app.show_date_picker() if self.focus else None
+                    write_tab: False
+
+                # Due time
+                Label:
+                    text: "Due Time"
+                    color: 0, 0, 0, 1
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedField:
+                    id: due_time
+                    size_hint_x: .65
+                    text: ""
+                    hint_text: "Select a time"
+                    on_focus: app.time_picker() if self.focus else None
+                    write_tab: False
+
+                # Select status
+                Label:
+                    text: "Status"
+                    color: 0, 0, 0, 1
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedSpinner:
+                    id: fld_status
+                    size_hint_x: .65
+                    text: ""
+                    hint_text: "Select the status"
+                    values: ["Complete", "Incomplete"]
+                    size_hint_y: None
+                    height: dp(40)
+
+                # Select tag
+                Label:
+                    text: "Tag"
+                    color: 0, 0, 0, 1
+                    size_hint_x: .35
+                    halign: "right"
+                    valign: "middle"
+                    text_size: self.size
+                RoundedSpinner:
+                    id: fld_tag
+                    size_hint_x: .65
+                    text: ""
+                    hint_text: "Select Tag"
+                    values: ["Exercise", "Sleep", "Hydration", "Medication"]
+                    size_hint_y: None
+                    height: dp(40)
+
+            RoundedButton:
+                id: save
+                text: "Save"
+                on_press: app.save_task()
+            RoundedButton:
+                id: delete
+                text: "Delete"
+                background_normal: ""
+                background_color: 1, 0, 0, 1
+                on_press: app.delete_task()
+        Widget:
+
+        NavBar
+
 <ChatbotScreen>:
     name: "chat"
     BoxLayout:
         orientation: "vertical"
         padding: dp(16)
         spacing: dp(12)
+
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "AI Health Assistant"
+            
         BoxLayout:
             spacing: dp(12)
             size_hint_y: None
@@ -652,6 +832,13 @@ KV = """
         padding: dp(16)
         spacing: dp(12)
 
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "My Support Network"
 
@@ -773,6 +960,13 @@ KV = """
         padding: dp(16)
         spacing: dp(12)
 
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "User Profile"
 
@@ -871,6 +1065,13 @@ KV = """
         padding: dp(16)
         spacing: dp(12)
 
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "Settings"
 
@@ -930,6 +1131,13 @@ KV = """
         padding: dp(16)
         spacing: dp(12)
 
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
         Header:
             title: "Emergency"
 
@@ -996,6 +1204,7 @@ ScreenManager:
     HomeScreen:
     HealthScreen:
     RoutineScreen:
+    TaskScreen:
     ChatbotScreen:
     SupportScreen:
     ProfileScreen:
@@ -1005,7 +1214,8 @@ ScreenManager:
 
 class HomeScreen(Screen): pass
 class HealthScreen(Screen): pass
-class RoutineScreen(Screen): pass
+class RoutineScreen(Screen): pass            
+class TaskScreen(Screen): pass
 class ChatbotScreen(Screen): pass
 class SupportScreen(Screen): pass
 class ProfileScreen(Screen): pass
@@ -1019,6 +1229,8 @@ class SOSConfirmScreen(Screen):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
+        self.tdlIndex = 0
+
     def update_log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
         new_entry = f"[{timestamp}] {message}"  # define new_entry
@@ -1029,7 +1241,7 @@ class SOSConfirmScreen(Screen):
             entries = entries[-max_entries:]
         self.log_text = '\n'.join(entries) + '\n'
 
-class MedBuddyApp(App):
+class MedBuddyApp(MDApp):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -1038,8 +1250,157 @@ class MedBuddyApp(App):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
+        self.todo = ToDoList()
+
+        self.tdlIndex = 0
+
+        self.taskIndex = 0
+
+
     def open_video(self, url):            #---Added Open Video webbrowser>
         webbrowser.open(url)
+
+    def modify_task(self, t, index, *args):
+        self.tdlIndex = index
+        print("TDL Index", self.tdlIndex)
+        
+        self.root.current = 'task'
+        task = self.root.get_screen("task")
+        task_type = task.ids.create_edit
+        task_type.title = "Edit Task"
+        print(task_type)
+
+        task.ids.fld_taskTitle.text = t.title
+        task.ids.fld_desc.text = t.description
+
+        dt_str = t.dueDateTime
+        dt = datetime.strptime(dt_str, "%I:%M %p, %d %B %Y")
+        
+        #grab date in ("%Y-%m-%d") format
+        formattedDate = dt.strftime("%Y-%m-%d")
+
+        #grab time in ("%H:%M") formate
+        formattedTime = dt.strftime("%H:%M")
+        
+        task.ids.fld_date.text = formattedDate
+        task.ids.due_time.text = formattedTime
+
+        task.ids.fld_status.text = t.status
+        task.ids.fld_tag.text = t.tag
+        
+
+    def add_task(self):
+        task = self.root.get_screen("task")
+        task_type = task.ids.create_edit
+        print(task_type)
+        task_type.title = "Create Task"
+
+        task.ids.fld_taskTitle.text = ""
+        task.ids.fld_desc.text = ""
+
+        now = datetime.now()
+        
+        #grab date in ("%Y-%m-%d") format
+        formattedDate = now.strftime("%Y-%m-%d")
+
+        #grab time in ("%H:%M") formate
+        formattedTime = now.strftime("%H:%M")
+        
+        task.ids.fld_date.text = ""
+        task.ids.due_time.text = ""
+
+        task.ids.fld_status.text = ""
+        task.ids.fld_tag.text = ""
+
+    def save_task(self):
+        #get task screen
+        task = self.root.get_screen("task")
+        task_type = task.ids.create_edit
+
+        #get inputs
+        titleInput = task.ids.fld_taskTitle.text
+        descInput = task.ids.fld_desc.text
+        dateInput = task.ids.fld_date.text
+        timeInput = task.ids.due_time.text
+        dt = f"{dateInput} {timeInput}"
+        dtInput = datetime.strptime(dt, "%Y-%m-%d %H:%M")
+        print("DT", dt)
+        
+        statusInput = task.ids.fld_status.text
+        tagInput = task.ids.fld_tag.text
+
+        #check if task has been created or modifying existing task
+        if task_type.title == "Create Task":
+            newTask = Task(dt, titleInput, descInput, tagInput, statusInput)
+            self.todo.addTask(newTask)
+            print("Create task identified")
+            
+        elif task_type.title == "Edit Task":
+            print("TDL index for T", self.tdlIndex)
+            t = self.todo.tasks[self.tdlIndex]
+            print("t Item is", t)
+            self.todo.updateTask(t, "title", titleInput)
+            self.todo.updateTask(t, "description", descInput)
+            self.todo.updateTask(t, "dueDateTime", dt)
+            self.todo.updateTask(t, "status", statusInput)
+            self.todo.updateTask(t, "tag", tagInput)
+            print(t.title, t.description, t.dueDateTime, t.status, t.tag)
+            for i in self.todo.tasks:
+                st = i.getTask()
+                print(st)
+        
+        self.init_todo_list()
+
+        self.root.current = 'routine'
+
+    def delete_task(self):
+        t = self.todo.tasks[self.tdlIndex]
+        
+        self.todo.removeTask(t)
+        print(str(t), "removed")
+        print("couldn't remove task")
+
+        self.init_todo_list()
+        
+        for i in self.todo.tasks:
+            st = i.getTask()
+            print(st)
+
+        self.root.current = 'routine'
+
+    def time_picker(self):
+        # Parse a default time from string
+        default_time = datetime.strptime("12:00:00", "%H:%M:%S").time()
+
+        # Create the time picker
+        time_picker = MDTimePicker()
+        time_picker.set_time(default_time)
+
+        # Bind callback for when time is selected
+        time_picker.bind(time=self.on_time_selected)
+
+        # Open the picker
+        time_picker.open()
+
+    def on_time_selected(self, instance, time_obj):
+        # Access the correct screen via its name
+        screen = self.root.get_screen("task") 
+        screen.ids.due_time.text = time_obj.strftime("%H:%M")
+
+    def show_date_picker(self):
+        date_dialog = MDDatePicker()
+        date_dialog.bind(on_save=self.on_date_save, on_cancel=self.on_date_cancel)
+        date_dialog.open()
+
+    def on_date_save(self, instance, value, date_range):
+        # 'value' is a datetime object representing the selected date
+        # 'date_range' is a list of datetime objects for range selection (if mode="range")
+        screen = self.root.get_screen("task")
+        screen.ids.fld_date.text = value.strftime("%Y-%m-%d")
+
+    def on_date_cancel(self, instance, value):
+        # Handle cancellation if needed
+        print("Date selection cancelled")
 
     def build(self):
         self.title = "MedBuddy"
@@ -1065,7 +1426,7 @@ class MedBuddyApp(App):
 
          # 3) (optional) set up your To-Do list
          self.init_todo_list()
-
+        
          #get title of current day and display
          routine = self.sm.get_screen("routine")
          
@@ -1075,17 +1436,28 @@ class MedBuddyApp(App):
          routine.ids.weekday_title.title = f"Today ({weekday})"
 
     def init_todo_list(self):
-        # instantiate the ToDoList
-        self.todo = ToDoList()
+        self.tdlIndex = 0
+
         # get the Routine screen and its container
-        routine = self.sm.get_screen("routine")
+        routine = self.root.get_screen("routine")
         container = routine.ids.tasks_container
+
+        container.clear_widgets()
+
+        print("INITIALISING TODO")
+        for i in self.todo.tasks:
+            st = i.getTask()
+            print(st)
 
         self.filterList = []
 
         sorted_tasks = sorted(self.todo.tasks, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
+
         
         # add each task as a Label (or your custom widget)
+        index = 0
+        print("Init index", index)
+        
         for task in sorted_tasks:
             
             if task.status == "Complete":
@@ -1101,13 +1473,29 @@ class MedBuddyApp(App):
                 background_color=c,
                 size_hint_y=None,
             )
+
+            self.tdlIndex = index
+
+            print("TDL Index", self.tdlIndex)
+
+            # Bind the button press to the modify_task function with the task as argument
+            taskButton1.bind(on_press=partial(self.modify_task, task, index))
+            print(f"Index of {task.title}", index)
             
             container.add_widget(taskButton1)
 
             self.filterList.append(task)
 
+            index+=1
+
+            print("Loop Index", index)
+
+
+
     #filtering to-do list
     def on_toggle_pressed(self, toggle_button):
+        self.tdlIndex = 0
+        
         # get the Routine screen and its container
         routine = self.sm.get_screen("routine")
         container = routine.ids.tasks_container
@@ -1168,6 +1556,9 @@ class MedBuddyApp(App):
         sorted_tasks = sorted(filterList, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
 
         #display filtered tasks
+        index = 0
+        print("Init index", index)
+
         for ftask in sorted_tasks:
             if ftask.status == "Complete":
                 c = (0.8, 0.99, 0.76, 1)
@@ -1182,9 +1573,22 @@ class MedBuddyApp(App):
                 background_color=c,
                 size_hint_y=None,
             )
+            
+            self.tdlIndex = index
 
+            print("TDL Index", self.tdlIndex)            
+            
+            # Bind the button press to the modify_task function with the task as argument
+            taskButton2.bind(on_press=partial(self.modify_task, ftask, index))            
+            print(f"Index of {ftask.title}", index)
+            
             container.add_widget(taskButton2)
 
+            index+=1
+
+            index+=1
+
+            print("Loop Index", index)
 
     #Anomalydetection.py
 
