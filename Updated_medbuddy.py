@@ -603,18 +603,22 @@ KV = """
                 height: dp(120)
                 spacing: dp(8)
                 RoundedToggleButton:
+                    id: eButton
                     text: "Exercise (ON)" if self.state=="down" else "Exercise (OFF)"
                     state: "down"
                     on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
+                    id: sButton
                     text: "Sleep (ON)" if self.state=="down" else "Sleep (OFF)"
                     state: "down"
                     on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
+                    id: mButton
                     text: "Medication (ON)" if self.state=="down" else "Medication (OFF)"
                     state: "down"
                     on_press: app.on_toggle_pressed(self)
                 RoundedToggleButton:
+                    id: hButton
                     text: "Hydration (ON)" if self.state=="down" else "Hydration (OFF)"
                     state: "down"
                     on_press: app.on_toggle_pressed(self)
@@ -1229,8 +1233,6 @@ class SOSConfirmScreen(Screen):
         self.last_log_time = 0
         self.log_cooldown = 10  # seconds
 
-        self.tdlIndex = 0
-
     def update_log(self, message):
         timestamp = datetime.now().strftime("%H:%M:%S")
         new_entry = f"[{timestamp}] {message}"  # define new_entry
@@ -1254,15 +1256,14 @@ class MedBuddyApp(MDApp):
 
         self.tdlIndex = 0
 
-        self.taskIndex = 0
+        self.flist = False
 
 
     def open_video(self, url):            #---Added Open Video webbrowser>
         webbrowser.open(url)
 
     def modify_task(self, t, index, *args):
-        self.tdlIndex = index
-        print("TDL Index", self.tdlIndex)
+        print(t.title, "index is", index)
         
         self.root.current = 'task'
         task = self.root.get_screen("task")
@@ -1287,6 +1288,8 @@ class MedBuddyApp(MDApp):
 
         task.ids.fld_status.text = t.status
         task.ids.fld_tag.text = t.tag
+
+        self.tdlIndex = index
         
 
     def add_task(self):
@@ -1336,9 +1339,12 @@ class MedBuddyApp(MDApp):
             print("Create task identified")
             
         elif task_type.title == "Edit Task":
-            print("TDL index for T", self.tdlIndex)
-            t = self.todo.tasks[self.tdlIndex]
-            print("t Item is", t)
+            print("Save task with index", self.tdlIndex)
+            if self.flist == True:
+                t = self.filterList[self.tdlIndex]
+            else:
+                t = self.todo.tasks[self.tdlIndex]
+
             self.todo.updateTask(t, "title", titleInput)
             self.todo.updateTask(t, "description", descInput)
             self.todo.updateTask(t, "dueDateTime", dt)
@@ -1348,17 +1354,24 @@ class MedBuddyApp(MDApp):
             for i in self.todo.tasks:
                 st = i.getTask()
                 print(st)
+
+            self.tdlIndex = 0
         
         self.init_todo_list()
 
         self.root.current = 'routine'
 
     def delete_task(self):
-        t = self.todo.tasks[self.tdlIndex]
-        
+        print("Delete task with index", self.tdlIndex)
+        if self.flist == True:
+            t = self.filterList[self.tdlIndex]
+        else:
+            t = self.todo.tasks[self.tdlIndex]
+
         self.todo.removeTask(t)
         print(str(t), "removed")
-        print("couldn't remove task")
+
+        self.tdlIndex = 0
 
         self.init_todo_list()
         
@@ -1436,13 +1449,26 @@ class MedBuddyApp(MDApp):
          routine.ids.weekday_title.title = f"Today ({weekday})"
 
     def init_todo_list(self):
-        self.tdlIndex = 0
+        self.todo.tasks = sorted(self.todo.tasks, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
 
         # get the Routine screen and its container
         routine = self.root.get_screen("routine")
         container = routine.ids.tasks_container
 
         container.clear_widgets()
+
+        #reset filter buttons
+        eb = routine.ids.eButton
+        eb.state = 'down'
+        
+        sb = routine.ids.sButton
+        sb.state = 'down'
+        
+        mb = routine.ids.mButton
+        mb.state = 'down'
+        
+        hb = routine.ids.hButton
+        hb.state = 'down'
 
         print("INITIALISING TODO")
         for i in self.todo.tasks:
@@ -1451,14 +1477,13 @@ class MedBuddyApp(MDApp):
 
         self.filterList = []
 
-        sorted_tasks = sorted(self.todo.tasks, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
+        index = 0
 
+        self.flist = False
         
         # add each task as a Label (or your custom widget)
-        index = 0
-        print("Init index", index)
         
-        for task in sorted_tasks:
+        for task in self.todo.tasks:
             
             if task.status == "Complete":
                 c = (0.8, 0.99, 0.76, 1)
@@ -1474,27 +1499,21 @@ class MedBuddyApp(MDApp):
                 size_hint_y=None,
             )
 
-            self.tdlIndex = index
-
-            print("TDL Index", self.tdlIndex)
-
             # Bind the button press to the modify_task function with the task as argument
             taskButton1.bind(on_press=partial(self.modify_task, task, index))
-            print(f"Index of {task.title}", index)
             
             container.add_widget(taskButton1)
 
             self.filterList.append(task)
 
-            index+=1
+            index += 1
 
-            print("Loop Index", index)
-
-
+        self.filterList = sorted(self.filterList, key=lambda f: datetime.strptime(f.dueDateTime, "%I:%M %p, %d %B %Y"))
 
     #filtering to-do list
     def on_toggle_pressed(self, toggle_button):
-        self.tdlIndex = 0
+        
+        #self.filterList = sorted(self.filterList, key=lambda f: datetime.strptime(f.dueDateTime, "%I:%M %p, %d %B %Y"))
         
         # get the Routine screen and its container
         routine = self.sm.get_screen("routine")
@@ -1502,7 +1521,7 @@ class MedBuddyApp(MDApp):
 
         container.clear_widgets()
 
-        filterList = self.filterList
+        #filterList = self.filterList
 
         eList = self.todo.displayByTag("Exercise")
         sList = self.todo.displayByTag("Sleep")
@@ -1512,54 +1531,56 @@ class MedBuddyApp(MDApp):
         if "Exercise (ON)" in toggle_button.text:
             print("EXERCISE BUTTON ON")
             for e in eList:
-                filterList.append(e)
+                self.filterList.append(e)
                  
         elif "Exercise (OFF)" in toggle_button.text:
             print("EXERCISE BUTTON OFF")
-            for et in filterList:
+            for et in self.filterList:
                 if et.tag == "Exercise":
-                    filterList.remove(et)
+                    self.filterList.remove(et)
                  
         if "Sleep (ON)" in toggle_button.text:
             print("SLEEP BUTTON ON")
             for s in sList:
-                filterList.append(s)            
+                self.filterList.append(s)            
                  
         elif "Sleep (OFF)" in toggle_button.text:
             print("SLEEP BUTTON OFF")
-            for st in filterList:
+            for st in self.filterList:
                 if st.tag == "Sleep":
-                    filterList.remove(st)
+                    self.filterList.remove(st)
             
         if "Hydration (ON)" in toggle_button.text:
             print("HYDRATION BUTTON ON")
             for h in hList:
-                filterList.append(h)
+                self.filterList.append(h)
                 
         elif "Hydration (OFF)" in toggle_button.text:
             print("HYDRATION BUTTON OFF")
-            for ht in filterList:
+            for ht in self.filterList:
                 if ht.tag == "Hydration":
-                    filterList.remove(ht)
+                    self.filterList.remove(ht)
                  
         if "Medication (ON)" in toggle_button.text:
             print("MEDICATION BUTTON ON")
             for m in mList:
-                filterList.append(m)
+                self.filterList.append(m)
 
         elif "Medication (OFF)" in toggle_button.text:
             print("MEDICATION BUTTON OFF")
-            for mt in filterList:
+            for mt in self.filterList:
                 if mt.tag == "Medication":
-                    filterList.remove(mt)
-
-        sorted_tasks = sorted(filterList, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
+                    self.filterList.remove(mt)
 
         #display filtered tasks
         index = 0
-        print("Init index", index)
 
-        for ftask in sorted_tasks:
+        self.flist = True
+
+        self.filterList = sorted(self.filterList, key=lambda f: datetime.strptime(f.dueDateTime, "%I:%M %p, %d %B %Y"))
+
+        for ftask in self.filterList:
+            
             if ftask.status == "Complete":
                 c = (0.8, 0.99, 0.76, 1)
             elif ftask.status == "Incomplete":
@@ -1573,22 +1594,14 @@ class MedBuddyApp(MDApp):
                 background_color=c,
                 size_hint_y=None,
             )
-            
-            self.tdlIndex = index
-
-            print("TDL Index", self.tdlIndex)            
-            
+                                    
             # Bind the button press to the modify_task function with the task as argument
-            taskButton2.bind(on_press=partial(self.modify_task, ftask, index))            
-            print(f"Index of {ftask.title}", index)
+            taskButton2.bind(on_press=partial(self.modify_task, ftask, index))
             
             container.add_widget(taskButton2)
 
-            index+=1
+            index += 1
 
-            index+=1
-
-            print("Loop Index", index)
 
     #Anomalydetection.py
 
