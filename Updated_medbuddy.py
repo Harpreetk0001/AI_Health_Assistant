@@ -880,7 +880,7 @@ KV = """
                         text: "Belinda Wen  •  Daughter"
                         color: 0.12,0.12,0.15,1
 
-                    Button:
+                    RoundedToggleButton:
                         pos_hint: {'center_y': 0.5}
                         background_normal: "BlankStar.png"
                         background_down: "FullStar.png"
@@ -911,7 +911,7 @@ KV = """
                         text: "Anna Tanaka  •  Nurse"
                         color: 0.12,0.12,0.15,1
 
-                    Button:
+                    RoundedToggleButton:
                         pos_hint: {'center_y': 0.5}
                         background_normal: "BlankStar.png"
                         background_down: "FullStar.png"
@@ -942,7 +942,7 @@ KV = """
                         text: "Jimmy Cole  •  Nephew"
                         color: 0.12,0.12,0.15,1
 
-                    Button:
+                    RoundedToggleButton:
                         pos_hint: {'center_y': 0.5}
                         size_hint: None, None  # Fixed size
                         width: 45
@@ -1662,6 +1662,7 @@ class MedBuddyApp(MDApp):
 
 if __name__ == "__main__":
     MedBuddyApp().run()
+
 
 
 
