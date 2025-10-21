@@ -7,7 +7,6 @@ from kivy_garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from MySupportNetwork import ContactList, Contact
 #import all the files from the backend
 
-
 VitalsMatrix = ([],[],[],[],[],[])
 
 TimeStamps = []
@@ -125,6 +124,10 @@ class Vitals:
 
 ##TESTING##
 
+#get data from backend
+
+#format as vitals objects
+
 #data record 1#
 dayBefore = (datetime.now()) - timedelta(days=2)
 Vitals1 = Vitals(2150, 8, 75, 110, 75, 7500, dayBefore)
@@ -140,3 +143,4 @@ Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
 Vitals.alert_boundary(Vitals1)
 Vitals.alert_boundary(Vitals2)
 Vitals.alert_boundary(Vitals3)
+
