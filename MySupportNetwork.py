@@ -69,7 +69,6 @@ class ContactList:
         print("AFTER REMOVING CONTACT")
 
         #remove from DB
-        #possibly reformat as DB record
 
     def callEmergencyContacts(self):
 
