@@ -1,0 +1,165 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - moin
+    - hey there
+    - let's go
+    - hey dude
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - cu
+    - good by
+    - cee you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: affirm
+  examples: |
+    - yes
+    - y
+    - indeed
+    - of course
+    - that sounds good
+    - correct
+
+- intent: deny
+  examples: |
+    - no
+    - nope
+    - not really
+
+- intent: mood_great
+  examples: |
+    - I am great
+    - feeling awesome
+    - super happy
+    - amazing
+
+- intent: mood_unhappy
+  examples: |
+    - I feel sad
+    - not good
+    - unhappy
+    - depressed
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - am I talking to a human?
+
+- intent: heart_rate
+  examples: |
+    - what is a healthy heart rate?
+    - heart rate?
+
+- intent: thank_you
+  examples: |
+    - thanks
+    - thank you
+    - appreciate it
+
+- intent: lifestyle_tips
+  examples: |
+    - give me a health tip
+    - any fitness advice?
+    - wellness tips
+
+- intent: tell_joke
+  examples: |
+    - tell me a joke
+    - make me laugh
+    - I want a joke
+
+- intent: play_game
+  examples: |
+    - let's play a game
+    - play a game
+    - I want to play
+
+- intent: chatbot_function
+  examples: |
+    - what can you do?
+    - what are your features?
+
+- intent: mood_check
+  examples: |
+    - I feel tired
+    - I'm happy
+    - I’m not feeling great
+
+- intent: ask_recipe
+  examples: |
+    - suggest a recipe
+    - I want a healthy meal
+    - give me a recipe
+
+- intent: ask_sleep_tips
+  examples: |
+    - how can I sleep better?
+    - give me sleep tips
+    - I can't sleep well
+
+- intent: ask_fitness_tips
+  examples: |
+    - any fitness advice?
+    - workout tips
+    - how can I exercise better?
+
+- intent: ask_water_intake
+  examples: |
+    - how much water should I drink?
+    - hydration tips
+    - water intake
+
+- intent: ask_meditation
+  examples: |
+    - tell me about meditation
+    - how to meditate?
+    - meditation tips
+
+- intent: ask_stress_relief
+  examples: |
+    - how to reduce stress?
+    - stress relief tips
+    - I feel stressed
+
+- intent: ask_fun_fact
+  examples: |
+    - tell me a fun fact
+    - give me a health fact
+    - interesting fact
+
+- intent: mindfulness_exercise
+  examples: |
+    - I want to do mindfulness
+    - mindfulness exercise
+    - help me meditate
+
+- intent: mini_quiz
+  examples: |
+    - give me a quiz
+    - I want to answer a question
+    - health quiz
+
+- intent: daily_challenge
+  examples: |
+    - daily challenge
+    - health challenge
+    - what’s today’s challenge
