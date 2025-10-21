@@ -95,6 +95,9 @@ class Vitals:
 
     def displayHealthWarning(self, vital_type):
         warning = vital_type + " is not healthy, please seek medical advice/care"
+
+        #OPTIONAL: add the warning to the DB as an alert log
+        
         return emailHealthAlert(warning)
 
     def emailHealthAlert(self, warning):
@@ -143,5 +146,6 @@ Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
 Vitals.alert_boundary(Vitals1)
 Vitals.alert_boundary(Vitals2)
 Vitals.alert_boundary(Vitals3)
+
 
 
