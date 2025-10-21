@@ -14,10 +14,14 @@ class ToDoList:
         self.checkTaskStatus(Task)
         self.tasks.append(Task)
 
+        #add to DB
+
     def removeTask(self, Task):
         for t in self.tasks:
             if Task in self.tasks:
                 self.tasks.remove(Task)
+                #remove from DB
+            
             if Task in self.complete:
                 self.complete.remove(Task)
             if Task in self.incomplete:
@@ -36,6 +40,8 @@ class ToDoList:
         elif attribute == "status":
             Task.status = new_value
             self.checkTaskStatus(Task)
+            
+        #update the task with all attributes in the backend
 
     def checkTaskStatus(self, Task):
         if Task.status == "Complete":
@@ -79,13 +85,15 @@ class ToDoList:
         return filteredList
         
 class Task:
-    def __init__(self, dueDateTime, title, description, tag, status):
+    def __init__(self, dueDateTime, title, description, tag, status): #if needed add index=None
         time = datetime.strptime(dueDateTime, "%Y-%m-%d %H:%M")
         self.dueDateTime = time.strftime("%I:%M %p, %d %B %Y").lstrip("0").replace(" 0", " ")
         self.title = title
         self.description = description
         self.tag = tag
         self.status = status
+
+        #if needed, add an index attribute
 
     def getTask(self):
         
@@ -99,6 +107,8 @@ class Task:
 ##TESTING##
 
 TDL = ToDoList()
+
+#load data into TDL
 
 #task 1#
 t1 = Task("2025-03-04 12:00", "BP Tablet", "must have with a glass of water", "Medication", "Incomplete")
