@@ -1,0 +1,106 @@
+- story: happy mood
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: mood_great
+    - action: utter_happy
+
+- story: sad mood
+  steps:
+    - intent: greet
+    - action: utter_greet
+    - intent: mood_unhappy
+    - action: utter_cheer_up
+    - action: utter_did_that_help
+    - intent: affirm
+    - action: utter_happy
+    - intent: deny
+    - action: utter_goodbye
+
+- story: heart rate info
+  steps:
+    - intent: heart_rate
+    - action: utter_heart_rate
+
+- story: lifestyle advice
+  steps:
+    - intent: lifestyle_tips
+    - action: utter_lifestyle_tips
+
+- story: tell joke
+  steps:
+    - intent: tell_joke
+    - action: utter_tell_joke
+
+- story: play a game
+  steps:
+    - intent: play_game
+    - action: utter_play_game
+
+- story: chatbot functions
+  steps:
+    - intent: chatbot_function
+    - action: utter_chatbot_function
+
+- story: ask recipe
+  steps:
+    - intent: ask_recipe
+    - action: utter_ask_recipe
+
+- story: sleep tips
+  steps:
+    - intent: ask_sleep_tips
+    - action: utter_sleep_tips
+
+- story: fitness tips
+  steps:
+    - intent: ask_fitness_tips
+    - action: utter_fitness_tips
+
+- story: water intake
+  steps:
+    - intent: ask_water_intake
+    - action: utter_water_intake
+
+- story: meditation tips
+  steps:
+    - intent: ask_meditation
+    - action: utter_meditation
+
+- story: stress relief
+  steps:
+    - intent: ask_stress_relief
+    - action: utter_stress_relief
+
+- story: fun fact
+  steps:
+    - intent: ask_fun_fact
+    - action: utter_fun_fact
+
+- story: mindfulness
+  steps:
+    - intent: mindfulness_exercise
+    - action: utter_mindfulness_exercise
+
+- story: mini quiz
+  steps:
+    - intent: mini_quiz
+    - action: utter_mini_quiz
+
+- story: daily challenge
+  steps:
+    - intent: daily_challenge
+    - action: utter_daily_challenge
+
+- story: farewell
+  steps:
+    - intent: thank_you
+    - action: utter_thank_you
+    - intent: goodbye
+    - action: utter_goodbye
+
+# Optional fallback
+- story: fallback
+  steps:
+    - intent: nlu_fallback
+    - action: utter_default
