@@ -1,0 +1,106 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - mood_great
+  - mood_unhappy
+  - bot_challenge
+  - heart_rate
+  - thank_you
+  - lifestyle_tips
+  - tell_joke
+  - play_game
+  - chatbot_function
+  - mood_check
+  - ask_recipe
+  - ask_sleep_tips
+  - ask_fitness_tips
+  - ask_water_intake
+  - ask_meditation
+  - ask_stress_relief
+  - ask_fun_fact
+  - mindfulness_exercise
+  - mini_quiz
+  - daily_challenge
+
+responses:
+  utter_greet:
+    - text: "Hello! I'm MedBuddy — your health assistant. How are you feeling today?"
+    - text: "Hi there! MedBuddy here. How can I support your health today?"
+
+  utter_goodbye:
+    - text: "Take care! 💙 Stay healthy!"
+    - text: "Goodbye! Hope you feel great soon."
+
+  utter_happy:
+    - text: "Great, carry on!"
+
+  utter_cheer_up:
+    - text: "Here’s something to cheer you up 🙂"
+
+  utter_did_that_help:
+    - text: "Did that help you?"
+
+  utter_iamabot:
+    - text: "I am a bot, powered by Rasa."
+
+  utter_heart_rate:
+    - text: "A normal resting heart rate for adults is 60 to 100 bpm. It can vary with age, fitness, and emotions."
+
+  utter_thank_you:
+    - text: "You're welcome! 😊"
+    - text: "Anytime — I’m here to help!"
+
+  utter_lifestyle_tips:
+    - text: "Stay hydrated and aim for at least 30 minutes of movement a day!"
+    - text: "Try adding more fruits and veggies to your meals today 🥦🍎."
+
+  utter_tell_joke:
+    - text: "Why did the tomato turn red? Because it saw the salad dressing! 😄"
+    - text: "Why don’t scientists trust atoms? Because they make up everything!"
+
+  utter_play_game:
+    - text: "Let’s play a simple game! Guess a number between 1 and 10."
+
+  utter_chatbot_function:
+    - text: "I can chat, tell jokes, give health tips, suggest recipes, or even play simple games with you!"
+
+  utter_mood_check:
+    - text: "How are you feeling today — happy, tired, or unwell?"
+
+  utter_ask_recipe:
+    - text: "I can suggest a healthy recipe! Would you like breakfast, lunch, or dinner ideas?"
+
+  utter_sleep_tips:
+    - text: "Aim for 7-9 hours of sleep every night. Avoid screens before bedtime and keep your room dark and cool."
+
+  utter_fitness_tips:
+    - text: "Try 30 minutes of cardio and strength exercises most days. Even a brisk walk counts!"
+
+  utter_water_intake:
+    - text: "Drinking 6-8 glasses of water a day is recommended. Listen to your thirst!"
+
+  utter_meditation:
+    - text: "Meditation can help reduce stress and improve focus. Try starting with 5 minutes a day."
+
+  utter_stress_relief:
+    - text: "Deep breathing, short walks, or listening to music can help reduce stress."
+
+  utter_fun_fact:
+    - text: "Did you know? Laughing for 10-15 minutes a day can boost your immune system!"
+
+  utter_mindfulness_exercise:
+    - text: "Let's try a quick mindfulness exercise: Take a deep breath in for 4 seconds, hold for 4, and exhale for 4. Repeat three times."
+
+  utter_mini_quiz:
+    - text: "Here’s a fun quiz: What vitamin do you get from sunlight? A) Vitamin A B) Vitamin C C) Vitamin D"
+
+  utter_daily_challenge:
+    - text: "Today's challenge: Walk 5,000 steps and drink 2 extra glasses of water. Can you do it?"
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
