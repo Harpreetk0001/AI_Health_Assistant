@@ -31,6 +31,7 @@ class ContactList:
         print("AFTER ADDING CONTACT")
 
         #add contact to DB
+        #possibly reformat as DB record
 
     def updateContact(self, Contact, attribute, new_value):
         if attribute == "Name":
@@ -50,6 +51,7 @@ class ContactList:
         print("AFTER UPDATING CONTACT")
 
         #update contact in DB
+        #possibly reformat as DB record
 
     def checkFavourite(self, Contact):
         if Contact.favourite == True:
@@ -67,6 +69,8 @@ class ContactList:
         print("AFTER REMOVING CONTACT")
 
         #remove from DB
+        #update contact in DB
+        #possibly reformat as DB record
 
     def callEmergencyContacts(self):
 
@@ -134,9 +138,9 @@ class Contact:
 #SET UP#
 CL = ContactList()
 
-c1 = Contact("Belinda Wen", "Daughter", "0435384765", "mehakb.2318@gmail.com", "BelindaPFP.png", True)
-c2 = Contact("Anna Tanaka", "Nurse", "0464911899", "mehakb.2318@gmail.com", "AnnaPFP.png", False)
-c3 = Contact("Jimmy Cole", "Son", "0463377211", "mehakb.2318@gmail.com", "JimmyPFP.png", False)
+c1 = Contact("Belinda Wen", "Daughter", "0435384765", "medbuddy.teaminnovators@gmail.com", "BelindaPFP.png", True)
+c2 = Contact("Anna Tanaka", "Nurse", "0464911899", "medbuddy.teaminnovators@gmail.com", "AnnaPFP.png", False)
+c3 = Contact("Jimmy Cole", "Son", "0463377211", "medbuddy.teaminnovators@gmail.com", "JimmyPFP.png", False)
 
 CL.addContact(c1)
 CL.addContact(c2)
