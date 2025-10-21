@@ -1,0 +1,33 @@
+version: "3.1"
+
+rules:
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: Say 'I am a bot' anytime the user challenges
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- rule: provide heart rate information
+  steps:
+  - intent: heart_rate
+  - action: utter_heart_rate
+
+- rule: Respond to jokes
+  steps:
+  - intent: tell_joke
+  - action: utter_tell_joke
+
+- rule: Respond to mindfulness requests
+  steps:
+  - intent: mindfulness_exercise
+  - action: utter_mindfulness_exercise
+
+- rule: Respond to daily challenges
+  steps:
+  - intent: daily_challenge
+  - action: utter_daily_challenge
