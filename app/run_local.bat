@@ -1,0 +1,3 @@
+@echo off
+echo Starting MedBuddy backend...
+uvicorn app.main:app --reload

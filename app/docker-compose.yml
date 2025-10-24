@@ -1,0 +1,55 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: medbuddy
+      POSTGRES_PASSWORD: medbuddy_password
+      POSTGRES_DB: medbuddy_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=medbuddy
+      - POSTGRES_PASSWORD=user123
+      - POSTGRES_DB=medbuddy_db
+      - JWT_SECRET_KEY=super-secret-key-change-me
+
+  worker:
+    build: .
+    command: python worker.py
+    volumes:
+      - ./:/usr/src/app
+    depends_on:
+      - db
+      - web
+    environment:
+      - API_URL=http://web:8000
+
+  seed:
+    build: .
+    command: python seed_db.py
+    volumes:
+      - ./:/usr/src/app
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_HOST=db
+    restart: "no"
+
+volumes:
+  pgdata:
