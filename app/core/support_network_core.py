@@ -18,13 +18,13 @@ class ContactList:
         self.contacts.append(c)
         if c.favourite:
             self.emergencyContacts.append(c)
-        # TODO: persist to backend
+        
 
     def updateContact(self, c: Contact, attribute: str, new_value):
         if c in self.contacts:
             setattr(c, attribute, new_value)
             self.emergencyContacts = [x for x in self.contacts if x.favourite]
-            # TODO: persist to backend
+            
 
     def deleteContact(self, c: Contact):
         if c in self.contacts:
@@ -32,3 +32,4 @@ class ContactList:
             if c in self.emergencyContacts:
                 self.emergencyContacts.remove(c)
             # TODO: delete from backend
+
