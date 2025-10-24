@@ -1,4 +1,4 @@
-version: "3.8"
+12version: "3.8"
 
 services:
   db:
@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: medbuddy
-      POSTGRES_PASSWORD: medbuddy_password
+      POSTGRES_PASSWORD: user123
       POSTGRES_DB: medbuddy_db
     ports:
       - "5432:5432"
@@ -15,7 +15,7 @@ services:
 
   web:
     build: .
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
     volumes:
       - ./:/usr/src/app
     ports:
@@ -53,3 +53,4 @@ services:
 
 volumes:
   pgdata:
+
