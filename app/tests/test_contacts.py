@@ -1,6 +1,6 @@
 def test_contacts_crud(client, token):
     headers = {"Authorization": f"Bearer {token}"}
-    c = {"name": "Bob", "relationship": "Friend", "phone": "123", "email": "bob@example.com", "favourite": True}
+    c = {"name": "Bob", "relationship": "Friend", "phone": "123", "email": "bob@medbuddy.com", "favourite": True}
     r = client.post("/contacts/", json=c, headers=headers)
     assert r.status_code == 200
     cid = r.json()["id"]
@@ -19,3 +19,4 @@ def test_contacts_crud(client, token):
     r4 = client.delete(f"/contacts/{cid}", headers=headers)
     assert r4.status_code == 200
     assert r4.json()["success"] is True
+
