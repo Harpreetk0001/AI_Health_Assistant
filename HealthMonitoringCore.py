@@ -101,6 +101,8 @@ class Vitals:
         CL = ContactList()
         CL.emailContacts(warning)
 
+        print("Email sent to contacts")
+
     #custom function and set boundary for alerts
     def alert_boundary(self):
         if self.hydration not in range(2100, 2600):
@@ -130,21 +132,29 @@ class Vitals:
 #format as vitals objects
 
 #data record 1#
+
+day_four = (datetime.now()) - timedelta(days=4)
+Vitals1 = Vitals(3000, 9, 85, 115, 77, 6500, day_four)
+
+day_three = (datetime.now()) - timedelta(days=3)
+Vitals2 = Vitals(2200, 9, 80, 125, 80, 7000, day_three)
+
 dayBefore = (datetime.now()) - timedelta(days=2)
-Vitals1 = Vitals(2150, 8, 75, 110, 75, 7500, dayBefore)
+Vitals3 = Vitals(2150, 8, 75, 110, 75, 7500, dayBefore)
 
 #data record 2#
 yesterday = (datetime.now()) - timedelta(days=1)
-Vitals2 = Vitals(2000, 9, 80, 120, 80, 8000)
+Vitals4 = Vitals(2000, 9, 80, 120, 80, 8000)
 
 #data record 3#
-Vitals3 = Vitals(2150, 6, 75, 110, 75, 5000)
+Vitals5 = Vitals(2150, 6, 75, 110, 75, 5000)
 
 #check for alert boundaries
 Vitals.alert_boundary(Vitals1)
 Vitals.alert_boundary(Vitals2)
 Vitals.alert_boundary(Vitals3)
-
+Vitals.alert_boundary(Vitals4)
+Vitals.alert_boundary(Vitals5)
 
 
 
