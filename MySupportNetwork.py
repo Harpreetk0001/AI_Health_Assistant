@@ -9,7 +9,7 @@ import smtplib
 #import all the files from the backend
 
 class ContactList:
-    def __init__(self):
+    def __init__(self, contacts = [], emergencyContacts = []):
         self.contacts = []
         self.emergencyContacts = []
 
@@ -137,11 +137,12 @@ class Contact:
 CL = ContactList()
 
 c1 = Contact("Belinda Wen", "Daughter", "0435384765", "medbuddy.teaminnovators@gmail.com", "BelindaPFP.png", True)
-c2 = Contact("Anna Tanaka", "Nurse", "0464911899", "medbuddy.teaminnovators@gmail.com", "AnnaPFP.png", False)
-c3 = Contact("Jimmy Cole", "Son", "0463377211", "medbuddy.teaminnovators@gmail.com", "JimmyPFP.png", False)
-
 CL.addContact(c1)
+
+c2 = Contact("Anna Tanaka", "Nurse", "0464911899", "medbuddy.teaminnovators@gmail.com", "AnnaPFP.png", False)
 CL.addContact(c2)
+
+c3 = Contact("Jimmy Cole", "Son", "0463377211", "medbuddy.teaminnovators@gmail.com", "JimmyPFP.png", False)
 CL.addContact(c3)
 
 #ContactList FUNCTION TESTS#
