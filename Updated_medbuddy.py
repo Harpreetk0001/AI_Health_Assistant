@@ -3,6 +3,8 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivy.metrics import dp
 from kivy.core.window import Window
+from kivy.uix.behaviors import ButtonBehavior, ToggleButtonBehavior
+from kivy.uix.image import AsyncImage
 import os, sys
 import chatbot  # chatbot.py file
 from threading import Thread
@@ -16,7 +18,9 @@ from kivymd.uix.pickers import MDTimePicker, MDDatePicker
 import time
 import webbrowser                               #imported webbrowser for yt exercise video links
 from functools import partial
+import smtplib
 
+from MySupportNetwork import ContactList, Contact
 from HealthMonitoringCore import HealthGraph    # for the vitals graph
 from ToDoList import ToDoList, Task             # for the task manager
 from kivy.uix.label import Label
@@ -44,8 +48,16 @@ def find_emoji_font() -> str:
     for p in candidates:
         if os.path.exists(p):
             return p
-    return ""  
+    return ""
 
+class AsyncIconButton(ButtonBehavior, AsyncImage):
+    """A button that uses AsyncImage for its icon."""
+    pass
+
+class AsyncToggleImage(ToggleButtonBehavior, AsyncImage):
+    """An async image that behaves like a toggle button."""
+    def on_state(self, instance, value):
+        self.source = 'FullStar.png' if value == 'down' else 'BlankStar.png'
 
 KV = """
 #:import dp kivy.metrics.dp
@@ -173,8 +185,7 @@ KV = """
     text: ""
     background_color: (0.43, 0.79, 0.94, 1) if self.state == "down" else (0.7, 0.7, 0.7, 1)
     color: 1, 1, 1, 1
-    size_hint_y: None
-    height: dp(44)
+    size_hint_y: 0.25
     font_size: "16sp"
     canvas.before:
         Color:
@@ -213,36 +224,51 @@ KV = """
             pos: self.pos
             size: self.size
             radius: [dp(16), dp(16), 0, 0]
-    Button:
+
+    AsyncIconButton:
         pos_hint: {'center_x': 0.16, 'center_y': 0.5}
-        size_hint: {0.09, 0.75}
-        background_normal: 'home_normal.png'
-        background_down: 'home_down.png'
-        on_release: app.sm.current = "home"
-    Button:
+        size_hint: 0.09, 0.75
+        source: 'home_normal.png'
+        on_press: self.source = 'home_down.png'
+        on_release:
+            self.source = 'home_normal.png'
+            app.sm.current = "home"
+
+    AsyncIconButton:
         pos_hint: {'center_x': 0.32, 'center_y': 0.5}
-        size_hint: {0.075, 0.75}
-        background_normal: 'health_normal.png'
-        background_down: 'health_down.png'
-        on_release: app.sm.current = "health"
-    Button:
+        size_hint: 0.075, 0.75
+        source: 'health_normal.png'
+        on_press: self.source = 'health_down.png'
+        on_release:
+            self.source = 'health_normal.png'
+            app.sm.current = "health"
+
+    AsyncIconButton:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        size_hint: {0.08, 0.75}
-        background_normal: 'routine_normal.png'
-        background_down: 'routine_down.png'
-        on_release: app.sm.current = "routine"
-    Button:
+        size_hint: 0.08, 0.75
+        source: 'routine_normal.png'
+        on_press: self.source = 'routine_down.png'
+        on_release:
+            self.source = 'routine_normal.png'
+            app.sm.current = "routine"
+
+    AsyncIconButton:
         pos_hint: {'center_x': 0.66, 'center_y': 0.5}
-        size_hint: {0.075, 0.75}
-        background_normal: 'chatbot_normal.png'
-        background_down: 'chatbot_down.png'
-        on_release: app.sm.current = "chat"
-    Button:
+        size_hint: 0.075, 0.75
+        source: 'chatbot_normal.png'
+        on_press: self.source = 'chatbot_down.png'
+        on_release:
+            self.source = 'chatbot_normal.png'
+            app.sm.current = "chat"
+
+    AsyncIconButton:
         pos_hint: {'center_x': 0.82, 'center_y': 0.5}
-        size_hint: {0.075, 0.6}
-        background_normal: 'profile_normal.png'
-        background_down: 'profile_down.png'
-        on_release: app.sm.current = "profile"
+        size_hint: 0.075, 0.6
+        source: 'profile_normal.png'
+        on_press: self.source = 'profile_down.png'
+        on_release:
+            self.source = 'profile_normal.png'
+            app.sm.current = "profile"
 
 <Card@BoxLayout>:
     orientation: "vertical"
@@ -434,7 +460,8 @@ KV = """
             source: 'LOGO.png'
 
             # Giving the size of image
-            size_hint_x: 0.75
+            size_hint_y: None
+            height: dp(75)
 
             # allow stretching of image 
             # allow_stretch: True
@@ -450,7 +477,7 @@ KV = """
             GridLayout:
                 cols: 5
                 size_hint_y: None
-                height: dp(128)
+                height: dp(100)
                 padding: 0, dp(4)
                 spacing: dp(8)
 
@@ -499,8 +526,7 @@ KV = """
 
         BoxLayout:
             spacing: dp(12)
-            size_hint_y: None
-            height: dp(64)
+            size_hint_y: 0.1
             ActionButtons
 
         Card:
@@ -508,7 +534,7 @@ KV = """
             BoxLayout:
                 id: vitals_graph_container
                 size_hint_y: None
-                height: dp(200)
+                height: dp(150)
                 # we’ll inject the canvas here
 
         Card:
@@ -516,14 +542,14 @@ KV = """
             Label:
                 text: "Blood Pressure Spiked"
                 size_hint_y: None
-                height: dp(36)
+                height: dp(20)
                 color: 0.8,0.1,0.1,1
 
         Card:
             title: "Exercise Videos"                                    #---Added yt video links>
             BoxLayout:
                 size_hint_y: None
-                height: dp(44)
+                height: dp(35)
                 spacing: dp(8)
 
                 ActionBtn:
@@ -561,8 +587,7 @@ KV = """
 
         BoxLayout:
             spacing: dp(12)
-            size_hint_y: None
-            height: dp(64)
+            size_hint_y: 0.2
             ActionButtons
 
         Card:
@@ -570,7 +595,8 @@ KV = """
             title: "Today"
 
         BoxLayout:
-            size_y: 0.9
+            size_hint_y: None
+            height: dp(150)
             spacing: dp(8)
             canvas.before:
                 Color:
@@ -580,7 +606,7 @@ KV = """
                     size: self.size
                     radius: [dp(12), dp(12), dp(12), dp(12)]
             ScrollView:
-                size_hint_y: 0.9
+                height: dp(150)
                 padding: 100
                 space: 100
                 BoxLayout:
@@ -591,7 +617,8 @@ KV = """
 
         RoundedButton:
             text: "Add Task"
-            size_y: 300
+            size_hint_y: None
+            height: dp(50)
             on_press: app.add_task()
             on_release: app.sm.current = "task"
 
@@ -600,7 +627,7 @@ KV = """
             GridLayout:
                 cols: 2
                 size_hint_y: None
-                height: dp(120)
+                height: dp(75)
                 spacing: dp(8)
                 RoundedToggleButton:
                     id: eButton
@@ -646,8 +673,7 @@ KV = """
 
         BoxLayout:
             spacing: dp(12)
-            size_hint_y: None
-            height: dp(64)
+            size_hint_y: 0.1
             ActionButtons
 
         Card:
@@ -656,9 +682,9 @@ KV = """
             GridLayout:
                 cols: 2
                 size_hint_y: None
-                height: self.minimum_height
+                height: dp(250)
                 spacing: dp(10)
-                row_default_height: dp(44)
+                row_default_height: dp(35)
                 row_force_default: True
 
                 # Title
@@ -810,6 +836,7 @@ KV = """
                 Label:
                     id: response_label
                     text: "Hello! This is a UI-only demo."
+                    font_size: 40
                     color: 0.12,0.12,0.15,1
                     size_hint_y: None
                     height: self.texture_size[1] + dp(6)
@@ -871,7 +898,7 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [dp(12), dp(12), dp(12), dp(12)]
-                    Image:
+                    AsyncImage:
                         source: "BelindaPFP.png"
                         size_hint_x: None
                         allow_stretch: True
@@ -880,13 +907,14 @@ KV = """
                         text: "Belinda Wen  •  Daughter"
                         color: 0.12,0.12,0.15,1
 
-                    RoundedToggleButton:
+                    AsyncToggleImage:
                         pos_hint: {'center_y': 0.5}
-                        background_normal: "BlankStar.png"
-                        background_down: "FullStar.png"
-                        size_hint: None, None  # Fixed size
+                        size_hint: None, None
                         width: 45
                         height: 45
+                        source: 'BlankStar.png'
+                        allow_stretch: True
+                        keep_ratio: True
 
                     RoundedButton:
                         text: "Call"
@@ -902,7 +930,7 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [dp(12), dp(12), dp(12), dp(12)]
-                    Image:
+                    AsyncImage:
                         source: "AnnaPFP.png"
                         size_hint_x: None
                         allow_stretch: True
@@ -911,13 +939,14 @@ KV = """
                         text: "Anna Tanaka  •  Nurse"
                         color: 0.12,0.12,0.15,1
 
-                    RoundedToggleButton:
+                    AsyncToggleImage:
                         pos_hint: {'center_y': 0.5}
-                        background_normal: "BlankStar.png"
-                        background_down: "FullStar.png"
-                        size_hint: None, None  # Fixed size
+                        size_hint: None, None
                         width: 45
                         height: 45
+                        source: 'BlankStar.png'
+                        allow_stretch: True
+                        keep_ratio: True
 
                     RoundedButton:
                         text: "Call"
@@ -933,7 +962,7 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [dp(12), dp(12), dp(12), dp(12)]
-                    Image:
+                    AsyncImage:
                         source: "JimmyPFP.png"
                         size_hint_x: None
                         allow_stretch: True
@@ -942,13 +971,14 @@ KV = """
                         text: "Jimmy Cole  •  Nephew"
                         color: 0.12,0.12,0.15,1
 
-                    RoundedToggleButton:
+                    AsyncToggleImage:
                         pos_hint: {'center_y': 0.5}
-                        size_hint: None, None  # Fixed size
+                        size_hint: None, None
                         width: 45
                         height: 45
-                        background_normal: "BlankStar.png"
-                        background_down: "FullStar.png"
+                        source: 'BlankStar.png'
+                        allow_stretch: True
+                        keep_ratio: True
                     
                     RoundedButton:
                         text: "Call"
@@ -1146,6 +1176,7 @@ KV = """
             title: "Emergency"
 
         BoxLayout:
+            id: sos_confirm
             orientation: "vertical"
             padding: dp(16)
             spacing: dp(16)
@@ -1176,14 +1207,14 @@ KV = """
                 ActionBtn:
                     text: "Yes"
                     background_color: 0.12, 0.65, 0.36, 1
-                    on_release: app.sm.current = "home"
+                    on_release: app.alertContacts("SOS")
                 ActionBtn:
                     text: "No"
                     background_color: 0.65, 0.12, 0.18, 1
                     on_release: app.sm.current = "home"
 
         Card:
-            title: "Alert Logs"
+            title: "Fall Detection Alert Logs"
             
         ScrollView:
             size_hint_y: 1
@@ -1192,6 +1223,7 @@ KV = """
             Label:
                 id: sos_log_label_2
                 text: root.log_text
+                color: 0,0,0,1
                 size_hint_y: None
                 height: self.texture_size[1]
                 text_size: self.width, None
@@ -1201,6 +1233,51 @@ KV = """
         Widget:
 
         NavBar
+
+<AlertConfirmationScreen>:
+    name: "alert"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        canvas.before:
+            Color:
+                rgba: 0.89, 0.93, 0.91, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                
+        Header:
+            title: "Emergency"
+
+        BoxLayout:
+            id: sos_confirm
+            orientation: "vertical"
+            padding: dp(16)
+            spacing: dp(16)
+            size_hint_y: None
+            height: dp(280)
+            canvas.before:
+                Color:
+                    rgba: 1, 0.92, 0.92, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [dp(16), dp(16), dp(16), dp(16)]
+            Label:
+                text: "SOS sent to all contacts!!"
+                font_size: "64sp"
+                color: 0.9, 0.1, 0.1, 1
+                bold: True
+
+            ActionBtn:
+                text: "CONFIRM ALERT"
+                font_size: "64sp"
+                background_color: 0.12, 0.65, 0.36, 1
+                on_release: app.sm.current = "home"
+
+        Widget:        
 
 # Root
 
@@ -1214,6 +1291,7 @@ ScreenManager:
     ProfileScreen:
     SettingsScreen:
     SOSConfirmScreen:
+    AlertConfirmationScreen:
 """
 
 class HomeScreen(Screen): pass
@@ -1242,6 +1320,8 @@ class SOSConfirmScreen(Screen):
         if len(entries) > max_entries:
             entries = entries[-max_entries:]
         self.log_text = '\n'.join(entries) + '\n'
+
+class AlertConfirmationScreen(Screen): pass
 
 class MedBuddyApp(MDApp):
 
@@ -1437,6 +1517,13 @@ class MedBuddyApp(MDApp):
          health_screen = self.sm.get_screen("health")
          health_screen.ids.vitals_graph_container.add_widget(canvas)
 
+
+         #show all contacts
+         self.init_support_network()
+         
+         print("ON START GET CONTACTS")
+         self.CL.getAllContacts()
+         
          # 3) (optional) set up your To-Do list
          self.init_todo_list()
         
@@ -1447,6 +1534,18 @@ class MedBuddyApp(MDApp):
          weekday = str(current_datetime.strftime("%A"))
          print(weekday)
          routine.ids.weekday_title.title = f"Today ({weekday})"
+
+    def init_support_network(self):
+        self.CL = ContactList()
+        
+        c1 = Contact("Belinda Wen", "Daughter", "0435384765", "medbuddy.teaminnovators@gmail.com", "BelindaPFP.png", True)
+        self.CL.addContact(c1)
+
+        c2 = Contact("Anna Tanaka", "Nurse", "0464911899", "medbuddy.teaminnovators@gmail.com", "AnnaPFP.png", False)
+        self.CL.addContact(c2)
+
+        c3 = Contact("Jimmy Cole", "Son", "0463377211", "medbuddy.teaminnovators@gmail.com", "JimmyPFP.png", False)
+        self.CL.addContact(c3)
 
     def init_todo_list(self):
         self.todo.tasks = sorted(self.todo.tasks, key=lambda task: datetime.strptime(task.dueDateTime, "%I:%M %p, %d %B %Y"))
@@ -1510,6 +1609,14 @@ class MedBuddyApp(MDApp):
 
         self.filterList = sorted(self.filterList, key=lambda f: datetime.strptime(f.dueDateTime, "%I:%M %p, %d %B %Y"))
 
+    #alert user contacts
+    def alertContacts(self, message):
+        self.root.current = 'alert'
+        
+        print("EMAIL WITH MESSAGE: ", message)
+        self.CL.emailContacts(message)
+
+        
     #filtering to-do list
     def on_toggle_pressed(self, toggle_button):
         
