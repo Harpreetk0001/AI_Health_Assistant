@@ -1502,7 +1502,7 @@ class MedBuddyApp(MDApp):
         self.sm = Builder.load_string(KV)
 
          # Initialize chatbot here
-        chatbot.initialize()
+        #chatbot.initialize()
 
         # Start fall detection thread on app start:
         self.check_fall_and_log()
